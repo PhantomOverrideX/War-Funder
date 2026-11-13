@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Battle Front — Combined Arms</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <style>
   * { box-sizing: border-box; }
   body { margin: 0; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif;
@@ -110,7 +111,7 @@
     transition: opacity 0.3s; }
   #spawnProt.show { opacity: 1; }
   #settings { position: fixed; inset: 0; background: rgba(2,10,18,0.94);
-    display: none; z-index: 100; padding: 30px; overflow-y: auto; backdrop-filter: blur(6px); }
+    display: none; z-index: 230; padding: 30px; overflow-y: auto; backdrop-filter: blur(6px); }
   #settings.open { display: block; }
   #settings h1 { margin: 0 0 6px; font-size: 24px; color: #7fffe0; letter-spacing: 1px; }
   #settings .sub { color: #557; margin-bottom: 20px; font-size: 13px; }
@@ -150,7 +151,7 @@
   #settings button.ghost:hover { border-color: #7aa; color: #cff; }
 
   /* ---------- HANGAR ---------- */
-  #hangar { position: fixed; inset: 0; z-index: 110;
+  #hangar { position: fixed; inset: 0; z-index: 220;
     background: linear-gradient(180deg, #04121c 0%, #010608 100%);
     display: none; flex-direction: column; backdrop-filter: blur(8px); }
   #hangar.open { display: flex; }
@@ -373,10 +374,262 @@
   #mapName { font-size: 20px; letter-spacing: 4px; color: #dff; font-weight: 700; }
   #mapTag { font-size: 11px; letter-spacing: 3px; color: #5ad; margin: 3px 0 6px; }
   #mapDesc { font-size: 12px; color: #8ab; line-height: 1.5; min-height: 36px; }
+
+  #cpHud { position: fixed; top: 84px; left: 50%; transform: translateX(-50%); z-index: 20; pointer-events: none;
+    font-size: 12px; letter-spacing: 2px; color: #9cc; background: rgba(0,0,0,0.45); padding: 3px 12px; border-radius: 10px; display: none; }
+  #cpHud b { color: #fd6; font-size: 14px; }
+  #cpHud span { color: #678; margin-left: 8px; }
+  #cmd { position: fixed; inset: 0; z-index: 45; display: none; background: rgba(4,12,16,0.9); color: #cde; font-family: system-ui, sans-serif; }
+  #cmd.open { display: block; }
+  #cmd .cmdTitle { position: absolute; top: 14px; left: 0; right: 0; text-align: center; letter-spacing: 5px; font-size: 14px; color: #7cd; }
+  #cmd .cmdTitle b { color: #fd6; } #cmd .cmdTitle i { color: #f77; font-style: normal; }
+  #cmdMap { position: absolute; top: 56px; left: 50%; transform: translateX(-50%); border: 1px solid #2a5a60; cursor: crosshair; }
+  #cmd .panel { position: absolute; top: 56px; width: 270px; display: flex; flex-direction: column; gap: 8px; }
+  #cmdL { left: 18px; } #cmdR { right: 18px; }
+  #cmd h3 { margin: 6px 0 0; font-size: 11px; letter-spacing: 3px; color: #5ad; font-weight: 600; }
+  #cmd .btn2 { background: rgba(20,50,60,0.8); border: 1px solid #2a6a70; border-radius: 6px; padding: 8px 10px; cursor: pointer;
+    font-size: 12px; letter-spacing: 1px; display: flex; justify-content: space-between; align-items: center; user-select: none; }
+  #cmd .btn2:hover { background: rgba(40,100,110,0.8); }
+  #cmd .btn2.sel { border-color: #fd6; background: rgba(90,80,20,0.6); }
+  #cmd .btn2.dis { opacity: 0.4; }
+  #cmd .btn2 em { color: #fd6; font-style: normal; font-size: 11px; }
+  #cmd .sq small { display: block; color: #8ab; font-size: 10px; letter-spacing: 1px; margin-top: 2px; }
+  #cmd .hint { font-size: 10px; color: #789; line-height: 1.5; }
+  #cmd .btn2.padsel { outline: 2px solid #fd6; outline-offset: 1px; }
+  #cmdPadHint { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-size: 11px; letter-spacing: 1px; color: #9bb; display: none; }
+  #cmd.usingpad #cmdPadHint { display: block; }
+  #cmdClose { position: absolute; top: 12px; right: 18px; cursor: pointer; color: #9bb; font-size: 12px; letter-spacing: 2px; border: 1px solid #355; padding: 4px 10px; border-radius: 5px; }
+
+/* ================= STEEL · NAVY · CRIMSON THEME (matches the app icon) ================= */
+:root {
+  --navy-0:#050c18; --navy-1:#0a1a33; --navy-2:#12315e; --navy-3:#1c4a86;
+  --red:#d0261e; --red-d:#7a0f0d; --red-l:#ff5a48;
+  --steel-1:#eef1f3; --steel-2:#c3cad0; --steel-3:#8a949b; --steel-4:#4a535a; --steel-5:#22292f;
+  --amber:#ffcf6b; --ink:#e6edf2; --ink-dim:#93a3b3;
+  --stencil: 'Bahnschrift','Agency FB','Oswald','Arial Narrow','Segoe UI',system-ui,sans-serif;
+  --noise: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .55 -.18'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --scratch: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='s'><feTurbulence type='fractalNoise' baseFrequency='.012 .6' numOctaves='2'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.6 -.75'/></filter><rect width='100%' height='100%' filter='url(%23s)'/></svg>");
+  --plate: linear-gradient(180deg, rgba(28,52,92,.96) 0%, rgba(10,24,48,.97) 100%);
+}
+body { font-family: var(--stencil); color: var(--ink); }
+
+/* ---------- shared pieces ---------- */
+.steel-text { background: linear-gradient(180deg,#fbfcfd 0%,#c9d0d5 45%,#8a949b 100%); -webkit-background-clip: text; background-clip: text; color: transparent !important;
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,.65)) drop-shadow(0 0 14px rgba(120,170,255,.25)); text-shadow: none !important; }
+#settings h1, .hg-header h1, #pauseMenu h2, #mpLobby h2, #startScreen h1, #gameover h1 { font-family: var(--stencil); text-transform: uppercase; }
+
+/* ---------- start screen ---------- */
+#startScreen { overflow-y: auto; justify-content: flex-start; padding: 22px 16px 28px; isolation: isolate;
+  background:
+    radial-gradient(ellipse 36% 26% at 9% 18%, rgba(200,225,255,.34), transparent 70%),
+    radial-gradient(ellipse 30% 22% at 92% 24%, rgba(190,215,250,.30), transparent 70%),
+    radial-gradient(ellipse 34% 24% at 8% 86%, rgba(200,225,255,.26), transparent 70%),
+    radial-gradient(ellipse 32% 24% at 93% 84%, rgba(190,215,250,.30), transparent 70%),
+    linear-gradient(180deg, #14396b 0%, #0a1f40 55%, #050d1c 100%); }
+#startScreen::before { content:''; position: fixed; z-index: -1; top: 0; bottom: 0; left: 50%; width: min(30vw, 440px); transform: translateX(-50%);
+  background: var(--noise), linear-gradient(180deg, #a3150f 0%, #7a0d0b 50%, #5a0808 100%); background-blend-mode: overlay, normal;
+  box-shadow: 0 0 80px rgba(210,30,20,.45), inset 0 0 90px rgba(0,0,0,.55); opacity: .92; }
+#startScreen::after { content:''; position: fixed; inset: 10px; z-index: -1; border-radius: 34px; pointer-events: none;
+  border: 5px solid transparent; background: linear-gradient(135deg,#f3f6f8,#8a949b 30%,#4a535a 55%,#aeb7bd 80%,#e4e9ec) border-box;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude;
+  box-shadow: 0 0 0 2px rgba(0,0,0,.6); }
+#startScreen .logo { width: 128px; height: 128px; filter: drop-shadow(0 8px 14px rgba(0,0,0,.7)); margin-top: 6px; }
+#startScreen h1 { font-size: 46px; font-weight: 800; letter-spacing: 9px; margin: 6px 0 2px;
+  background: linear-gradient(180deg,#fbfcfd 0%,#c9d0d5 45%,#7f8991 100%); -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 3px 0 rgba(0,0,0,.7)) drop-shadow(0 0 18px rgba(120,170,255,.3)); text-shadow: none; }
+#startScreen .tag { color: #f1c9c4; letter-spacing: 6px; font-size: 12px; font-weight: 700; margin-bottom: 18px; text-shadow: 0 1px 4px #000; }
+#startScreen .tag::before, #startScreen .tag::after { content: '▰▰'; color: var(--steel-2); margin: 0 12px; letter-spacing: 0; }
+#startScreen .btns { gap: 10px; flex-wrap: wrap; justify-content: center; }
+.stencilbtn, #startScreen .btn { position: relative; padding: 13px 44px; border: none; border-radius: 0; cursor: pointer; font-family: var(--stencil);
+  font-size: 15px; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: #0d151c;
+  background: var(--scratch), linear-gradient(180deg,#e7ebee 0%,#b3bcc2 45%,#7e888f 100%); background-blend-mode: soft-light, normal;
+  clip-path: polygon(16px 0, 100% 0, calc(100% - 16px) 100%, 0 100%);
+  box-shadow: none; text-shadow: 0 1px 0 rgba(255,255,255,.55); transition: filter .15s, transform .1s; }
+#startScreen .btn:hover, .stencilbtn:hover { filter: brightness(1.12) saturate(1.1); transform: translateY(-1px); box-shadow: none; background: var(--scratch), linear-gradient(180deg,#f6f8f9 0%,#c9d0d5 45%,#939da4 100%); background-blend-mode: soft-light, normal; }
+#startScreen .btn#startBtn { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.7);
+  background: var(--scratch), linear-gradient(180deg,#f0463a 0%,#c4231b 50%,#7d100d 100%); background-blend-mode: soft-light, normal; }
+#startScreen .btn#startBtn:hover { background: var(--scratch), linear-gradient(180deg,#ff6a5c 0%,#d9332a 50%,#8d1511 100%); background-blend-mode: soft-light, normal; }
+#startScreen .btn.mp { color: #eaf3ff; text-shadow: 0 1px 2px rgba(0,0,0,.7); border: none;
+  background: var(--scratch), linear-gradient(180deg,#3b78c4 0%,#1f4f93 50%,#123166 100%); background-blend-mode: soft-light, normal; }
+#startScreen .btn.mp:hover { background: var(--scratch), linear-gradient(180deg,#5a96e0 0%,#2c63b0 50%,#17407f 100%); background-blend-mode: soft-light, normal; box-shadow: none; }
+#startScreen .help { margin-top: 22px; max-width: 760px; width: 100%; padding: 14px 20px; font-size: 12px; line-height: 1.85; color: var(--ink-dim);
+  background: linear-gradient(180deg, rgba(6,14,30,.82), rgba(4,10,22,.9)); border: 1px solid rgba(195,202,208,.35); border-radius: 10px; text-align: left;
+  box-shadow: inset 0 0 0 3px rgba(0,0,0,.35), 0 10px 30px rgba(0,0,0,.5); }
+#startScreen .help b { color: var(--steel-1); letter-spacing: 1px; text-transform: uppercase; font-size: 11px; }
+#mapPick { margin: 0 0 20px; gap: 12px; }
+#mapPick .arrow { color: var(--steel-1); border: 1px solid var(--steel-3); background: linear-gradient(180deg,rgba(60,80,110,.6),rgba(10,22,44,.8)); border-radius: 4px; padding: 10px 14px; }
+#mapPick .arrow:hover { background: linear-gradient(180deg,#e0463a,#8a130f); border-color: #fff; }
+#mapInfo { padding: 8px 14px; background: linear-gradient(180deg, rgba(6,14,30,.78), rgba(4,10,22,.88)); border: 1px solid rgba(195,202,208,.4); border-radius: 8px; }
+#mapName { color: var(--steel-1); letter-spacing: 6px; font-weight: 800; text-shadow: 0 2px 0 #000; }
+#mapTag { color: #ff9d92; font-weight: 700; }
+#mapDesc { color: var(--ink-dim); }
+
+/* ---------- steel plates (pause, lobby, settings, hangar) ---------- */
+#pauseMenu { background: radial-gradient(ellipse at center, rgba(8,22,46,.82), rgba(2,6,14,.94)); }
+#pauseMenu .panel { position: relative; padding: 30px 28px 26px; border-radius: 16px; border: 3px solid var(--steel-3);
+  background: var(--noise), var(--plate); background-blend-mode: overlay, normal;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.55), inset 0 0 0 4px rgba(220,226,230,.18), 0 16px 50px rgba(0,0,0,.7); }
+#pauseMenu .panel::before { content:''; position:absolute; left: 50%; top: -3px; width: 120px; height: 6px; transform: translateX(-50%); background: var(--red); box-shadow: 0 0 14px rgba(255,60,40,.7); }
+#pauseMenu h2 { font-size: 30px; letter-spacing: 10px; margin-bottom: 4px; background: linear-gradient(180deg,#fbfcfd,#9aa3aa); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 0 #000); }
+#pauseMenu .sub { color: #f0a59d; letter-spacing: 5px; font-weight: 700; }
+#pauseMenu .pauseBtn { font-family: var(--stencil); font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: #0d151c; border: none; border-radius: 0;
+  clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  background: var(--scratch), linear-gradient(180deg,#e2e7ea 0%,#aab3b9 50%,#78828a 100%); background-blend-mode: soft-light, normal; }
+#pauseMenu .pauseBtn:hover { background: var(--scratch), linear-gradient(180deg,#f6f8f9,#c3cad0 50%,#8d979e); background-blend-mode: soft-light, normal; border: none; }
+#pauseMenu .pauseBtn.danger { color: #fff; background: var(--scratch), linear-gradient(180deg,#e8453a,#b3211a 50%,#6f0e0b); background-blend-mode: soft-light, normal; border: none; }
+#pauseMenu .pauseBtn.danger:hover { background: var(--scratch), linear-gradient(180deg,#ff6a5c,#cc2c22 50%,#82120e); background-blend-mode: soft-light, normal; }
+
+#mpLobby { background: radial-gradient(ellipse at center, #0d2b57 0%, #040a16 100%); }
+#mpLobby h2 { color: var(--steel-1); letter-spacing: 8px; font-weight: 800; text-shadow: 0 2px 0 #000; }
+#mpLobby .codeBig { color: var(--amber); text-shadow: 0 0 24px rgba(255,190,60,.45), 0 3px 0 #000; font-family: var(--stencil); }
+#mpLobby .sub { color: var(--ink-dim); }
+#mpLobby input { background: rgba(4,10,22,.8); border: 2px solid var(--steel-3); color: var(--steel-1); border-radius: 4px; }
+#mpLobby .plist { background: linear-gradient(180deg, rgba(6,14,30,.85), rgba(4,10,22,.92)); border: 1px solid var(--steel-3); border-radius: 8px; color: var(--steel-2); }
+#mpLobby .plist div { border-bottom-color: rgba(195,202,208,.12); }
+#mpLobby .plist .you { color: #fff; } #mpLobby .plist .host { color: var(--amber); }
+#mpLobby .status { color: #8fb8ee; }
+#mpLobby .btn, #mpBack, #mpAction { font-family: var(--stencil) !important; font-weight: 800 !important; letter-spacing: 4px !important; text-transform: uppercase; border: none !important; border-radius: 0 !important;
+  color: #0d151c !important; clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  background: var(--scratch), linear-gradient(180deg,#e2e7ea,#aab3b9 50%,#78828a) !important; background-blend-mode: soft-light, normal; }
+#mpAction { color: #fff !important; background: var(--scratch), linear-gradient(180deg,#f0463a,#c4231b 50%,#7d100d) !important; background-blend-mode: soft-light, normal; }
+
+#settings { background: radial-gradient(ellipse at top, #10305c 0%, #050c18 70%); backdrop-filter: none; }
+#settings h1 { font-size: 28px; letter-spacing: 10px; font-weight: 800; background: linear-gradient(180deg,#fbfcfd,#9aa3aa); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 0 #000); }
+#settings .sub { color: var(--ink-dim); } #settings .sub b { color: var(--steel-1); }
+.tabs button { font-family: var(--stencil); font-weight: 800; letter-spacing: 3px; text-transform: uppercase; border-radius: 0; color: #0d151c; border: none;
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); padding: 10px 26px;
+  background: linear-gradient(180deg,#9aa4ab,#5d676e); }
+.tabs button:hover { background: linear-gradient(180deg,#c3cad0,#7e888f); }
+.tabs button.active { color: #fff; background: linear-gradient(180deg,#f0463a,#a8180f); }
+.bindRow, .optRow { background: linear-gradient(180deg, rgba(20,44,84,.75), rgba(8,20,42,.85)); border: 1px solid rgba(195,202,208,.22); border-radius: 4px; }
+.bindRow .name, .optRow label { color: var(--steel-2); font-weight: 600; letter-spacing: .5px; }
+.bindRow .val { background: rgba(2,8,18,.85); border: 1px solid var(--steel-3); color: var(--steel-1); border-radius: 3px; }
+.bindRow .val:hover { background: rgba(208,38,30,.35); border-color: #fff; }
+.bindRow .val.listening { background: var(--red); border-color: #fff; }
+.optRow input[type=range], .optRow input[type=checkbox] { accent-color: var(--red); }
+.optRow .val { color: var(--amber); }
+.optRow select { background: rgba(2,8,18,.85); color: var(--steel-1); border: 1px solid var(--steel-3); border-radius: 3px; }
+.section-title { color: #ff9d92; letter-spacing: 4px; font-weight: 800; }
+#settings button.big, #settings button.ghost, .hg-footer button { font-family: var(--stencil); font-weight: 800; letter-spacing: 4px; text-transform: uppercase; border: none; border-radius: 0; color: #0d151c;
+  clip-path: polygon(12px 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  background: var(--scratch), linear-gradient(180deg,#e2e7ea,#aab3b9 50%,#78828a); background-blend-mode: soft-light, normal; }
+#settings button.big, .hg-footer .deploy { color: #fff; background: var(--scratch), linear-gradient(180deg,#f0463a,#c4231b 50%,#7d100d); background-blend-mode: soft-light, normal; }
+#settings button.big:hover, .hg-footer .deploy:hover { background: var(--scratch), linear-gradient(180deg,#ff6a5c,#d9332a 50%,#8d1511); background-blend-mode: soft-light, normal; box-shadow: none; }
+.hg-footer .back { background: var(--scratch), linear-gradient(180deg,#e2e7ea,#aab3b9 50%,#78828a); background-blend-mode: soft-light, normal; color: #0d151c; border: none; }
+#settings button.ghost:hover, .hg-footer .back:hover { color: #0d151c; filter: brightness(1.12); border: none; }
+
+/* hangar */
+#hangar { background: radial-gradient(ellipse at 50% 0%, #12376a 0%, #07142a 55%, #03070f 100%); backdrop-filter: none; }
+.hg-header { border-bottom: 3px solid var(--steel-3); background: var(--noise), linear-gradient(180deg,#1c3359,#0b1830); background-blend-mode: overlay, normal; box-shadow: 0 4px 0 rgba(0,0,0,.5), inset 0 -3px 0 var(--red); }
+.hg-header h1 { font-weight: 800; letter-spacing: 10px; background: linear-gradient(180deg,#fbfcfd,#9aa3aa); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 2px 0 #000); text-shadow: none; }
+.hg-header .credits { color: var(--amber); font-weight: 800; } .hg-header .kills { color: var(--ink-dim); }
+.hg-tabs { border-bottom: 1px solid rgba(195,202,208,.25); background: rgba(3,8,18,.55); }
+.hg-tabs button { font-family: var(--stencil); font-weight: 800; letter-spacing: 4px; color: var(--ink-dim); }
+.hg-tabs button:hover { color: var(--steel-1); }
+.hg-tabs button.active { color: #fff; border-bottom-color: var(--red); background: linear-gradient(180deg, transparent, rgba(208,38,30,.25)); }
+.hg-selection-note { color: var(--steel-2); font-weight: 700; } .hg-selection-note span { color: var(--amber); }
+.hg-card, .upg-row, .paint-card { background: var(--noise), linear-gradient(180deg, rgba(24,50,92,.88), rgba(8,20,42,.92)); background-blend-mode: overlay, normal;
+  border: 2px solid rgba(138,148,155,.6); border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.5); }
+.hg-card:hover, .paint-card:hover { border-color: var(--steel-1); background: var(--noise), linear-gradient(180deg, rgba(34,70,126,.92), rgba(10,26,54,.95)); background-blend-mode: overlay, normal; }
+.hg-card.selected, .paint-card.selected { border-color: var(--red-l); box-shadow: 0 0 0 2px rgba(208,38,30,.6), 0 0 24px rgba(208,38,30,.4), inset 0 0 0 1px rgba(0,0,0,.5); }
+.hg-card.locked:hover { border-color: rgba(255,180,0,.6); background: rgba(60,40,0,.35); }
+.hg-card .name, .upg-row .info .name, .paint-card .label { color: var(--steel-1); font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
+.hg-card .era { color: #ff9d92; font-weight: 700; } .hg-card .desc, .upg-row .info .desc { color: var(--ink-dim); }
+.hg-card .badge { color: var(--amber); font-weight: 800; } .hg-card .unlock, .paint-card .unlock-req { color: var(--amber); }
+.upg-row .icon { color: var(--steel-1); }
+.upg-row .pip { background: rgba(138,148,155,.3); border-radius: 1px; } .upg-row .pip.filled { background: var(--red-l); box-shadow: 0 0 8px rgba(255,80,60,.6); }
+.upg-row .buy { font-family: var(--stencil); font-weight: 800; border: none; border-radius: 0; color: #0d151c; clip-path: polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);
+  background: linear-gradient(180deg,#e2e7ea,#a1abb2 50%,#737d85); }
+.upg-row .buy:hover:not(:disabled) { background: linear-gradient(180deg,#f6f8f9,#c3cad0 50%,#8d979e); }
+.upg-row .buy:disabled { opacity: .5; background: linear-gradient(180deg,#59636a,#3a434a); color: #9aa6af; border: none; }
+.upg-row .buy.max { background: linear-gradient(180deg,#5fbf6a,#2c7a38); color: #fff; border: none; }
+.hg-preview { border: 3px solid var(--steel-3); border-radius: 14px; background: var(--noise), radial-gradient(circle at 50% 35%, rgba(46,88,150,.7), rgba(5,12,26,.95)); background-blend-mode: overlay, normal;
+  box-shadow: inset 0 0 0 2px rgba(0,0,0,.6), 0 12px 30px rgba(0,0,0,.5); }
+.hg-preview .pv-name { color: var(--steel-1); font-weight: 800; letter-spacing: 4px; text-transform: uppercase; text-shadow: 0 2px 0 #000; }
+.hg-preview .pv-era { color: #ff9d92; font-weight: 700; } .hg-preview .pv-stat { color: var(--ink-dim); }
+.hg-preview .pv-stat .bar { background: rgba(138,148,155,.25); } .hg-preview .pv-stat .bar div { background: linear-gradient(90deg,#ff7a6a,#c4231b); }
+.hg-footer { border-top: 3px solid var(--steel-3); background: linear-gradient(180deg,#0a1630,#050b18); box-shadow: inset 0 3px 0 var(--red); }
+
+/* ---------- game over ---------- */
+#gameover { background: radial-gradient(ellipse at center, rgba(90,10,8,.82), rgba(10,0,0,.94)); }
+#gameover.victory { background: radial-gradient(ellipse at center, rgba(20,60,120,.82), rgba(2,8,20,.95)); }
+#gameover h1 { font-weight: 800; letter-spacing: 14px; color: transparent; background: linear-gradient(180deg,#fff,#ffb0a6 40%,#c4231b); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 4px 0 #000) drop-shadow(0 0 30px rgba(255,40,20,.6)); text-shadow: none; }
+#gameover.victory h1 { background: linear-gradient(180deg,#fff,#c6dcff 40%,#6aa0e8); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 4px 0 #000) drop-shadow(0 0 30px rgba(90,160,255,.6)); }
+#gameover .stat { color: var(--steel-1); font-weight: 600; }
+#gameover .btn { font-family: var(--stencil); font-weight: 800; letter-spacing: 4px; text-transform: uppercase; border: none; border-radius: 0; color: #fff;
+  clip-path: polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%); background: var(--scratch), linear-gradient(180deg,#f0463a,#c4231b 50%,#7d100d); background-blend-mode: soft-light, normal; }
+#gameover .btn:hover { filter: brightness(1.15); background: var(--scratch), linear-gradient(180deg,#f0463a,#c4231b 50%,#7d100d); background-blend-mode: soft-light, normal; }
+#gameover .btn.alt { color: #0d151c; background: var(--scratch), linear-gradient(180deg,#e2e7ea,#aab3b9 50%,#78828a); background-blend-mode: soft-light, normal; }
+#gameover .btn.alt:hover { background: var(--scratch), linear-gradient(180deg,#f6f8f9,#c3cad0 50%,#8d979e); background-blend-mode: soft-light, normal; }
+
+/* ---------- in-match HUD, toasts, command map ---------- */
+#hud { background: linear-gradient(180deg, rgba(14,30,58,.78), rgba(5,12,26,.82)); border: 2px solid rgba(195,202,208,.55); border-radius: 12px; color: var(--steel-1);
+  text-shadow: 0 1px 3px rgba(0,0,0,.8); box-shadow: inset 0 0 0 1px rgba(0,0,0,.5), 0 6px 18px rgba(0,0,0,.45); font-family: var(--stencil); }
+#hud .k { color: var(--ink-dim); } #hud .v { color: #fff; }
+#hud .title { color: var(--steel-1); font-weight: 800; letter-spacing: 3px; border-bottom: 1px solid rgba(195,202,208,.35); }
+#hud .view { color: #ff9d92; border-top-color: rgba(195,202,208,.2); }
+#hud .reloadBar { background: rgba(0,0,0,.5); } #hud .reloadBar div { background: linear-gradient(90deg,#ffd27a,#ff6a4a); }
+#ticketBar { font-family: var(--stencil); }
+#ticketBar .barWrap { border: 2px solid var(--steel-3); border-radius: 2px; background: rgba(0,0,0,.65); box-shadow: 0 0 0 1px #000; }
+#ticketBar .barBlue { background: linear-gradient(180deg,#5aa0f0,#1f4f93); } #ticketBar .barRed { background: linear-gradient(180deg,#ff5a48,#8a130f); }
+#ticketBar .blue { color: #7fb6ff; text-shadow: 0 2px 0 #000; } #ticketBar .red { color: #ff7a6a; text-shadow: 0 2px 0 #000; }
+.capDot { border-color: var(--steel-3); background: linear-gradient(180deg,#1b2f50,#0a1630); font-family: var(--stencil); }
+#toast { background: linear-gradient(180deg,#e7ebee,#9aa4ab); color: #0d151c; border: 2px solid #fff; border-radius: 0; font-family: var(--stencil); font-weight: 800; letter-spacing: 3px; text-transform: uppercase;
+  clip-path: polygon(14px 0,100% 0,calc(100% - 14px) 100%,0 100%); padding: 10px 34px; box-shadow: none; }
+#toast.unlock { background: linear-gradient(180deg,#ffd98a,#d99a1f); color: #2a1a00; border-color: #fff; box-shadow: none; }
+#minimap { border: 2px solid var(--steel-3); border-radius: 12px; background: rgba(5,12,26,.8); box-shadow: inset 0 0 0 1px #000, 0 6px 18px rgba(0,0,0,.5); }
+#cpHud { font-family: var(--stencil); background: linear-gradient(180deg, rgba(14,30,58,.8), rgba(5,12,26,.85)); border: 1px solid rgba(195,202,208,.5); border-radius: 3px; color: var(--steel-2); }
+#cpHud b { color: var(--amber); }
+#killFeed .kf { background: rgba(5,12,26,.78); border-right-color: var(--red-l); color: var(--steel-1); font-family: var(--stencil); font-weight: 700; }
+#cmd { background: radial-gradient(ellipse at center, rgba(14,40,80,.985), rgba(3,8,18,.995)); font-family: var(--stencil); }
+#cmd .cmdTitle { color: var(--steel-1); font-weight: 800; } #cmd .cmdTitle b { color: var(--amber); } #cmd .cmdTitle i { color: #ff7a6a; }
+#cmdMap { border: 3px solid var(--steel-3); border-radius: 6px; box-shadow: 0 0 0 2px #000, 0 10px 40px rgba(0,0,0,.6); }
+#cmd h3 { color: #ff9d92; letter-spacing: 4px; font-weight: 800; }
+#cmd .btn2 { border: none; border-radius: 0; color: #0d151c; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  clip-path: polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%); padding: 9px 18px; background: var(--scratch), linear-gradient(180deg,#e2e7ea,#aab3b9 50%,#78828a); background-blend-mode: soft-light, normal; }
+#cmd .btn2:hover { background: var(--scratch), linear-gradient(180deg,#f6f8f9,#c3cad0 50%,#8d979e); background-blend-mode: soft-light, normal; }
+#cmd .btn2.sel { color: #fff; background: var(--scratch), linear-gradient(180deg,#f0463a,#c4231b 50%,#7d100d); background-blend-mode: soft-light, normal; }
+#cmd .btn2 em { color: #7a0f0d; font-weight: 800; } #cmd .btn2.sel em { color: #ffe9a8; }
+#cmd .sq small { color: #3a444c; }
+#cmd .btn2.sel small { color: #ffd9d4; }
+#cmd .btn2.padsel { outline: 2px solid var(--amber); outline-offset: 2px; }
+#cmd .hint, #cmdPadHint { color: var(--ink-dim); }
+#cmdClose { border: 1px solid var(--steel-3); color: var(--steel-2); border-radius: 0; font-weight: 800; }
 </style>
 </head>
 <body>
 
+<div id="cpHud">CP <b id="cpVal">150</b><span>[G] / BACK · COMMAND</span></div>
+<div id="cmd">
+  <div class="cmdTitle">COMMAND MAP · CP <b id="cmdCP">0</b> · ENEMY CP <i id="cmdRedCP">0</i></div>
+  <div id="cmdClose">CLOSE [G] / BACK</div>
+  <div id="cmdPadHint">L-STICK CURSOR · D-PAD ↑↓ CHOOSE · A SELECT / PLACE · B CANCEL · LB/RB SQUAD · X NEXT POINT · Y MY VEHICLE · BACK CLOSE</div>
+  <canvas id="cmdMap" width="600" height="600"></canvas>
+  <div class="panel" id="cmdL">
+    <h3>SQUADS</h3>
+    <div class="btn2 sq" id="sq_tank" data-sq="tank"><div>ARMOR SQUAD<small id="sq_tank_o">FREE ENGAGE</small></div><em id="sq_tank_n">0/0</em></div>
+    <div class="btn2 sq" id="sq_plane" data-sq="plane"><div>AIR SQUAD<small id="sq_plane_o">FREE ENGAGE</small></div><em id="sq_plane_n">0/0</em></div>
+    <h3>ORDERS FOR SELECTED SQUAD</h3>
+    <div class="btn2" data-mode="capture">CAPTURE POINT</div>
+    <div class="btn2" data-mode="defend">DEFEND POINT</div>
+    <div class="btn2" data-mode="attack">ATTACK GRID</div>
+    <div class="btn2" data-mode="follow">FOLLOW ME</div>
+    <div class="btn2" data-mode="free">FREE ENGAGE</div>
+    <div class="hint">Pick a squad, pick an order, then click the map. Squads still shoot anything that comes into range.</div>
+  </div>
+  <div class="panel" id="cmdR">
+    <h3>FIRE SUPPORT</h3>
+    <div class="btn2" id="buy_arty" data-mode="arty">ARTILLERY BARRAGE<em>90 CP</em></div>
+    <div class="btn2" id="buy_air" data-mode="air">AIR STRIKE<em>140 CP</em></div>
+    <h3>REINFORCEMENTS</h3>
+    <div class="btn2" id="buy_tank2" data-buy="tank2">+2 TANKS<em>100 CP</em></div>
+    <div class="btn2" id="buy_plane2" data-buy="plane2">+2 FIGHTERS<em>120 CP</em></div>
+    <h3>YOUR VEHICLE</h3>
+    <div class="btn2" id="buy_repair" data-buy="repair">REPAIR<em>50 CP</em></div>
+    <div class="btn2" id="buy_resupply" data-buy="resupply">RESUPPLY AMMO<em>30 CP</em></div>
+    <div class="hint">CP comes from kills (+14/+18), captures (+45) and every point you hold (+1.3/s). Fallen allies cost CP to redeploy. The enemy commander plays by the same rules.</div>
+  </div>
+</div>
 <div id="ticketBar">
   <div class="team blue" id="tBlue">1000</div>
   <div>
@@ -566,6 +819,7 @@
 </div>
 
 <div id="startScreen">
+  <img class="logo" src="icon.png" alt="">
   <h1>BATTLE FRONT</h1>
   <div class="tag">COMBINED ARMS · CONQUEST MODE</div>
   <div id="mapPick"><div class="arrow" id="mapPrev">◀</div><div id="mapInfo"><div id="mapName"></div><div id="mapTag"></div><div id="mapDesc"></div></div><div class="arrow" id="mapNext">▶</div></div>
@@ -579,6 +833,7 @@
     <b>Objective:</b> Capture the 3 points (A · B · C). Drain enemy tickets to win.<br>
     <b>Planes:</b> W/S pitch · A/D roll · Q/E yaw · Shift/Ctrl throttle · Space guns · B bomb<br>
     <b>Tanks:</b> W/S drive · A/D steer · Q/E turret · PgUp/PgDn elevate · RMB+mouse aim · Space main gun · B MG<br>
+    <b>G</b> / <b>Back</b> Command map (solo): squad orders · artillery · air strikes · reinforcements<br>
     <b>C</b> Camera &nbsp;·&nbsp; <b>V</b> Optical sight &nbsp;·&nbsp; <b>Tab</b> Settings &nbsp;·&nbsp; <b>H</b> Hangar &nbsp;·&nbsp; <b>M</b> Mute &nbsp;·&nbsp; <b>Esc</b> / <b>D-Pad ←</b> Main menu<br>
     <b>Controller:</b> Left stick move · Right stick aim · <b>LT</b> main gun · <b>RT</b> MG/bombs · D-Pad ↑↓ zoom · B sight<br>
     <b style="color:#5af">Multiplayer:</b> Host creates a code · friends Join with that code · bots fill empty slots · host is the match authority
@@ -2525,7 +2780,7 @@ function updateCapturePoints(dt) {
         c.progress = 0;
         c.capturing = null;
         updateCapVisual(c);
-        if (prev !== target) toast('POINT ' + c.id + ' CAPTURED BY ' + target.toUpperCase() + '!');
+        if (prev !== target) { toast('POINT ' + c.id + ' CAPTURED BY ' + target.toUpperCase() + '!'); if (NET.mode === 'offline') stratAddCP(target, 45); }
       }
     } else if (target === c.owner) {
       c.progress = Math.max(0, c.progress - CAP_RATE * 1.5 * dt);
@@ -2582,6 +2837,7 @@ function updateTicketUI() {
 
 function endMatch(winner) {
   if (MATCH.ended) return;
+  stratClose();
   MATCH.ended = true;
   MATCH.active = false;
   const go = document.getElementById('gameover');
@@ -2810,6 +3066,552 @@ function maintainUnitCounts() {
   }
   if (blueAlive < targetBlue) spawnEnemy('blue');
 }
+
+/* ============================================================
+   STRATEGY LAYER — command points, squad orders, support calls
+   (solo play only; multiplayer keeps the classic behaviour)
+   ============================================================ */
+const STRAT = {
+  cp: { blue: 150, red: 150 },
+  clock: 0, incomeAcc: 0,
+  open: false,
+  squad: 'tank',
+  mode: null,               // pending map click: { type:'order', order } | { type:'support', id }
+  orders: { tank: null, plane: null },
+  fx: [],                   // active artillery / air strikes
+  redThinkAt: 15, redSupportAt: 70,
+  timeScale: 0.18,
+  bgKey: null, bgCanvas: null, R: 1000,
+  lastCp: -1
+};
+const STRAT_COST = { tank2: 100, plane2: 120, repair: 50, resupply: 30, arty: 90, air: 140 };
+const STRAT_RESPAWN = { tank: 30, plane: 40 };
+const STRAT_MAX_SQUAD = 12;
+const stratOn = () => NET.mode === 'offline';
+
+function stratAddCP(team, n) { STRAT.cp[team] = Math.min(999, STRAT.cp[team] + n); }
+function stratSpend(cost) {
+  if (STRAT.cp.blue < cost) { toast('NOT ENOUGH COMMAND POINTS'); return false; }
+  STRAT.cp.blue -= cost; return true;
+}
+function capById(id) { return captPoints.find(c => c.id === id); }
+function stratGoalPos(e, x, z) {
+  return new THREE.Vector3(x, e.kind === 'plane' ? Math.max(200, terrainHeightAt(x, z) + 150) : 0, z);
+}
+
+/* ---- orders → AI goal ---- */
+function stratGoal(e) {
+  const o = e.order;
+  if (!o) return null;
+  if (o.type === 'follow') {
+    if (!player.alive) return null;
+    const a = (e.slot || 0), r = e.kind === 'plane' ? 90 : 45;
+    return { pos: stratGoalPos(e, player.position.x + Math.cos(a) * r, player.position.z + Math.sin(a) * r), kind: 'cap', isPlayer: false };
+  }
+  if (o.type === 'attack') return { pos: stratGoalPos(e, o.x, o.z), kind: 'cap', isPlayer: false };
+  const c = capById(o.capId);
+  if (!c) return null;
+  if (o.type === 'capture' && c.owner === e.team) {
+    // objective complete → free roam again
+    e.order = null;
+    if (e.team === 'blue' && STRAT.orders[e.kind] === o) {
+      STRAT.orders[e.kind] = null;
+      toast((e.kind === 'tank' ? 'ARMOR' : 'AIR') + ' SQUAD: POINT ' + c.id + ' SECURED');
+    }
+    return null;
+  }
+  return { pos: stratGoalPos(e, c.x, c.z), kind: 'cap', isPlayer: false, cap: c };
+}
+function findAITarget(e) {
+  const base = findAITargetBase(e);
+  if (!e.order || !stratOn()) return base;
+  const goal = stratGoal(e);
+  if (!goal) return base;
+  if (base && base.kind !== 'cap') {
+    const engage = e.kind === 'plane' ? 800 : 420;
+    const d = e.position.distanceTo(base.pos);
+    if (d < engage) {
+      if (e.order.type !== 'defend' || !goal.cap ||
+          Math.hypot(base.pos.x - goal.cap.x, base.pos.z - goal.cap.z) < 300) return base;
+    }
+  }
+  return goal;
+}
+
+/* ---- issuing orders ---- */
+function stratSquadUnits(kind) { return enemies.filter(e => e.team === 'blue' && e.kind === kind); }
+function stratIssue(order) {
+  const kind = STRAT.squad;
+  if (order) STRAT.orders[kind] = order; else STRAT.orders[kind] = null;
+  for (const e of stratSquadUnits(kind)) { e.order = order; e.slot = Math.random() * 6.283; }
+  toast((kind === 'tank' ? 'ARMOR' : 'AIR') + ' SQUAD · ' + (order ? order.label : 'FREE ENGAGE'));
+}
+function stratOrderLabel(o) {
+  if (!o) return 'FREE ENGAGE';
+  return o.label;
+}
+
+/* ---- support ---- */
+function stratRing(x, z, radius, col) {
+  const m = new THREE.Mesh(new THREE.RingGeometry(radius * 0.92, radius, 48),
+    new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.8, side: THREE.DoubleSide, depthWrite: false }));
+  m.rotation.x = -Math.PI / 2;
+  m.position.set(x, terrainHeightAt(x, z) + 1.2, z);
+  scene.add(m);
+  return m;
+}
+function stratDropRing(m) { if (!m) return; scene.remove(m); m.geometry.dispose(); m.material.dispose(); }
+function stratCallArty(team, x, z) {
+  STRAT.fx.push({ type: 'arty', team, x, z, t0: STRAT.clock + 4.5, left: 14, next: 0,
+    ring: stratRing(x, z, 75, team === 'blue' ? 0x55aaff : 0xff5544) });
+}
+function stratCallAir(team, x, z) {
+  let sx = -500, sz = 0;
+  const own = captPoints.filter(c => c.owner === team);
+  const ref = own.length ? own[0] : null;
+  if (ref) { sx = ref.x; sz = ref.z; } else sx = team === 'blue' ? -500 : 500;
+  let dx = x - sx, dz = z - sz; const l = Math.hypot(dx, dz);
+  if (l < 60) { dx = 1; dz = 0; } else { dx /= l; dz /= l; }
+  const jets = [];
+  for (let k = 0; k < 2; k++) {
+    const m = createAircraftMesh(AIRCRAFT[Math.min(2, AIRCRAFT.length - 1)], null, { team });
+    m.rotation.y = Math.atan2(-dx, -dz);
+    m.visible = false; scene.add(m); jets.push(m);
+  }
+  STRAT.fx.push({ type: 'air', team, x, z, dx, dz, t0: STRAT.clock + 6, jets, dropAcc: [0, 0],
+    ring: stratRing(x, z, 150, team === 'blue' ? 0x55aaff : 0xff5544) });
+}
+function stratFxUpdate(dt) {
+  for (let i = STRAT.fx.length - 1; i >= 0; i--) {
+    const f = STRAT.fx[i];
+    if (f.ring) f.ring.material.opacity = 0.45 + 0.4 * Math.sin(STRAT.clock * 8);
+    if (f.type === 'arty') {
+      if (STRAT.clock < f.t0) continue;
+      f.next -= dt;
+      while (f.next <= 0 && f.left > 0) {
+        f.next += 0.4; f.left--;
+        const a = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random()) * 75;
+        const px = f.x + Math.cos(a) * r, pz = f.z + Math.sin(a) * r;
+        explodeBomb(new THREE.Vector3(px, terrainHeightAt(px, pz) + 0.5, pz), 24, 85, f.team);
+      }
+      if (f.left <= 0) { stratDropRing(f.ring); STRAT.fx.splice(i, 1); }
+    } else {
+      const t = STRAT.clock - f.t0;
+      if (t < 0) continue;
+      const speed = 260, along = t * speed;           // 0..900 over the path
+      let done = along > 960;
+      f.jets.forEach((m, k) => {
+        const off = (k ? 1 : -1) * 38;
+        const d = along - 450;                          // distance from target centre along path
+        const px = f.x + f.dx * d - f.dz * off, pz = f.z + f.dz * d + f.dx * off;
+        m.visible = true;
+        m.position.set(px, Math.max(terrainHeightAt(px, pz), terrainHeightAt(f.x, f.z)) + 170, pz);
+        if (along > 270 && along < 630) {
+          f.dropAcc[k] -= dt;
+          if (f.dropAcc[k] <= 0) {
+            f.dropAcc[k] = 0.22;
+            explodeBomb(new THREE.Vector3(px, terrainHeightAt(px, pz) + 0.5, pz), 26, 120, f.team);
+          }
+        }
+      });
+      if (done) {
+        for (const m of f.jets) { scene.remove(m); disposeMesh(m); }
+        stratDropRing(f.ring); STRAT.fx.splice(i, 1);
+      }
+    }
+  }
+}
+
+/* ---- purchases ---- */
+function stratBuy(id) {
+  if (!player.alive || MATCH.ended) return;
+  if (id === 'tank2' || id === 'plane2') {
+    if (enemies.filter(e => e.team === 'blue').length + 2 > STRAT_MAX_SQUAD) { toast('SQUAD LIMIT REACHED'); return; }
+    if (!stratSpend(STRAT_COST[id])) return;
+    for (let i = 0; i < 2; i++) id === 'tank2' ? spawnEnemyTank('blue') : spawnEnemyPlane('blue');
+    toast(id === 'tank2' ? 'ARMOR REINFORCEMENTS ARRIVING' : 'AIR REINFORCEMENTS ARRIVING');
+  } else if (id === 'repair') {
+    if (player.health >= player.maxHealth) { toast('ALREADY AT FULL HEALTH'); return; }
+    if (!stratSpend(STRAT_COST.repair)) return;
+    player.health = player.maxHealth; toast('REPAIRED');
+  } else if (id === 'resupply') {
+    if (!stratSpend(STRAT_COST.resupply)) return;
+    if (player.kind === 'tank') player.bombs = S ? S.mainGunAmmo : 30;
+    else player.bombs = S ? S.maxBombs : 0;
+    toast('AMMO RESUPPLIED');
+  }
+}
+function stratSupportAt(id, x, z) {
+  if (!stratSpend(STRAT_COST[id])) return false;
+  if (id === 'arty') { stratCallArty('blue', x, z); toast('ARTILLERY INBOUND · 5 SEC'); }
+  else { stratCallAir('blue', x, z); toast('AIR STRIKE INBOUND · 6 SEC'); }
+  return true;
+}
+
+/* ---- enemy commander ---- */
+function stratRedThink() {
+  const reds = enemies.filter(e => e.team === 'red' && e.alive);
+  const targets = captPoints.filter(c => c.owner !== 'red');
+  const held = captPoints.filter(c => c.owner === 'red');
+  reds.forEach((e, i) => {
+    let o = null;
+    const r = Math.random();
+    if (e.kind === 'plane' && r < 0.45) o = { type: 'attack', x: player.position.x, z: player.position.z, label: 'HUNT' };
+    else if (targets.length && r < 0.8) {
+      let c = targets[0], bd = 1e12;
+      for (const t of targets) { const d = (t.x - e.position.x) ** 2 + (t.z - e.position.z) ** 2; if (d < bd) { bd = d; c = t; } }
+      o = { type: 'capture', capId: c.id, label: 'CAPTURE ' + c.id };
+    } else if (held.length) {
+      const c = held[i % held.length];
+      o = { type: 'defend', capId: c.id, label: 'DEFEND ' + c.id };
+    }
+    e.order = o; e.slot = Math.random() * 6.283;
+  });
+  // reinforcements
+  if (STRAT.cp.red >= 130 && reds.length < 10) {
+    STRAT.cp.red -= 60;
+    Math.random() < 0.5 ? spawnEnemyTank('red') : spawnEnemyPlane('red');
+  }
+}
+function stratRedSupport() {
+  const blueCaps = captPoints.filter(c => c.owner === 'blue');
+  if (!blueCaps.length) return;
+  const c = blueCaps[Math.floor(Math.random() * blueCaps.length)];
+  const useAir = STRAT.cp.red >= STRAT_COST.air && Math.random() < 0.4;
+  if (useAir) {
+    STRAT.cp.red -= STRAT_COST.air; stratCallAir('red', c.x, c.z);
+  } else if (STRAT.cp.red >= STRAT_COST.arty) {
+    STRAT.cp.red -= STRAT_COST.arty; stratCallArty('red', c.x, c.z);
+  } else return;
+  toast('ENEMY ' + (useAir ? 'AIR STRIKE' : 'ARTILLERY') + ' INBOUND · POINT ' + c.id);
+}
+
+/* ---- respawns, income, per-frame ---- */
+function respawnUnit(e) {
+  e.mesh.visible = true; e.alive = true; e.health = e.maxHealth; e.fireCd = 1 + Math.random();
+  const teamCaps = captPoints.filter(c => c.owner === e.team || c.owner === 'neutral');
+  if (e.kind === 'plane') {
+    if (teamCaps.length) {
+      const c = teamCaps[Math.floor(Math.random() * teamCaps.length)];
+      e.position.set(c.x + (Math.random() - 0.5) * 150, 250 + Math.random() * 150, c.z + (Math.random() - 0.5) * 150);
+    } else {
+      const a = Math.random() * Math.PI * 2, r = 800 + Math.random() * 500;
+      e.position.set(Math.cos(a) * r, 280, Math.sin(a) * r);
+    }
+    e.velocity.set(0, 0, -e.stats.speed);
+  } else {
+    if (teamCaps.length) {
+      const c = teamCaps[Math.floor(Math.random() * teamCaps.length)];
+      e.position.set(c.x + (Math.random() - 0.5) * 100, 0, c.z + (Math.random() - 0.5) * 100);
+    } else {
+      const a = Math.random() * Math.PI * 2, r = 300 + Math.random() * 300;
+      e.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+    }
+    e.velocity.set(0, 0, 0);
+  }
+}
+function updateStrategy(dt) {
+  if (!stratOn() || !MATCH.active || MATCH.ended) return;
+  STRAT.clock += dt;
+  // income: base + per held point
+  STRAT.incomeAcc += dt;
+  if (STRAT.incomeAcc >= 1) {
+    STRAT.incomeAcc -= 1;
+    const bh = captPoints.filter(c => c.owner === 'blue').length;
+    const rh = captPoints.filter(c => c.owner === 'red').length;
+    stratAddCP('blue', 1 + 1.3 * bh);
+    stratAddCP('red', 0.9 + 1.2 * rh);
+  }
+  // inherit squad orders, fund respawns
+  for (const e of enemies) {
+    if (e.order === undefined) e.order = e.team === 'blue' ? (STRAT.orders[e.kind] || null) : null;
+    if (e.alive || e.respawnAt == null || STRAT.clock < e.respawnAt) continue;
+    const cost = STRAT_RESPAWN[e.kind] || 30;
+    if (STRAT.cp[e.team] >= cost) STRAT.cp[e.team] -= cost;
+    else if (STRAT.clock - e.respawnAt < 40) continue;   // wait for funds; after 40s a free militia unit spawns
+    respawnUnit(e); e.respawnAt = null;
+  }
+  // enemy commander
+  if (STRAT.clock >= STRAT.redThinkAt) { STRAT.redThinkAt = STRAT.clock + 18 + Math.random() * 10; stratRedThink(); }
+  if (STRAT.clock >= STRAT.redSupportAt) { STRAT.redSupportAt = STRAT.clock + 55 + Math.random() * 30; stratRedSupport(); }
+  stratFxUpdate(dt);
+  // HUD
+  const hud = document.getElementById('cpHud');
+  if (hud) {
+    hud.style.display = '';
+    const v = Math.floor(STRAT.cp.blue);
+    if (v !== STRAT.lastCp) { STRAT.lastCp = v; document.getElementById('cpVal').textContent = v; }
+  }
+}
+function stratReset() {
+  stratClose();
+  STRAT.cp.blue = 150; STRAT.cp.red = 150;
+  STRAT.clock = 0; STRAT.incomeAcc = 0; STRAT.orders.tank = null; STRAT.orders.plane = null;
+  STRAT.redThinkAt = 15; STRAT.redSupportAt = 70; STRAT.mode = null; STRAT.lastCp = -1;
+  for (const f of STRAT.fx) {
+    stratDropRing(f.ring);
+    if (f.jets) for (const m of f.jets) { scene.remove(m); disposeMesh(m); }
+  }
+  STRAT.fx.length = 0;
+  const hud = document.getElementById('cpHud');
+  if (hud) hud.style.display = stratOn() ? '' : 'none';
+}
+
+/* ============================================================
+   COMMAND MAP (slow-motion tactical overlay, key G)
+   ============================================================ */
+const cmdEl = document.getElementById('cmd');
+const cmdCv = document.getElementById('cmdMap');
+const cmdCtx = cmdCv ? cmdCv.getContext('2d') : null;
+let cmdS = 600;
+
+function stratCanOpen() {
+  return stratOn() && MATCH.active && !MATCH.ended && player.alive && !paused &&
+    document.getElementById('startScreen').classList.contains('hidden') &&
+    !hangarEl.classList.contains('open') && !settingsEl.classList.contains('open') &&
+    !document.getElementById('pauseMenu').classList.contains('open');
+}
+function stratOpen() {
+  if (!stratCanOpen()) { if (!stratOn()) toast('COMMAND MAP IS SOLO ONLY'); return; }
+  STRAT.open = true; STRAT.mode = null;
+  if (document.pointerLockElement) document.exitPointerLock?.();
+  mouseSteer.active = false; mouseSteer.x = 0; mouseSteer.y = 0;
+  let far = 700;
+  for (const c of captPoints) far = Math.max(far, Math.hypot(c.x, c.z));
+  STRAT.R = Math.max(900, far * 1.35);
+  stratBuildBg();
+  cmdEl.classList.add('open');
+  cmdLayout(); stratRefreshUI();
+}
+function stratClose() {
+  STRAT.open = false; STRAT.mode = null;
+  if (cmdEl) cmdEl.classList.remove('open');
+}
+function cmdLayout() {
+  cmdS = Math.max(320, Math.min(window.innerHeight - 110, window.innerWidth - 640));
+  cmdCv.width = cmdS; cmdCv.height = cmdS;
+  cmdCv.style.width = cmdS + 'px'; cmdCv.style.height = cmdS + 'px';
+}
+window.addEventListener('resize', () => { if (STRAT.open) cmdLayout(); });
+
+function stratBuildBg() {
+  const key = currentMap.id + '|' + Math.round(STRAT.R);
+  if (STRAT.bgKey === key) return;
+  STRAT.bgKey = key;
+  const N = 110, cv = document.createElement('canvas'); cv.width = cv.height = N;
+  const cx = cv.getContext('2d'), im = cx.createImageData(N, N);
+  const fb = currentMap.fb || 0x4a6a30;
+  const br = (fb >> 16) & 255, bg = (fb >> 8) & 255, bb = fb & 255;
+  const H = [];
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++)
+    H.push(terrainHeightAt((i / N - 0.5) * 2 * STRAT.R, (j / N - 0.5) * 2 * STRAT.R));
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    const h = H[j * N + i];
+    const hx = H[j * N + Math.min(N - 1, i + 1)] - H[j * N + Math.max(0, i - 1)];
+    const hz = H[Math.min(N - 1, j + 1) * N + i] - H[Math.max(0, j - 1) * N + i];
+    const shade = THREE.MathUtils.clamp(1 + (-hx - hz) * 0.012, 0.55, 1.5) * (0.55 + Math.min(0.5, Math.max(0, h) / 500));
+    const k = (j * N + i) * 4;
+    im.data[k] = Math.min(255, br * shade * 0.6); im.data[k + 1] = Math.min(255, bg * shade * 0.6);
+    im.data[k + 2] = Math.min(255, bb * shade * 0.6); im.data[k + 3] = 255;
+  }
+  cx.putImageData(im, 0, 0);
+  STRAT.bgCanvas = cv;
+}
+function cmdToMap(x, z) { return [(x / (2 * STRAT.R) + 0.5) * cmdS, (z / (2 * STRAT.R) + 0.5) * cmdS]; }
+function cmdToWorld(px, py) { return [(px / cmdS - 0.5) * 2 * STRAT.R, (py / cmdS - 0.5) * 2 * STRAT.R]; }
+
+function drawCommandMap() {
+  const c = cmdCtx, W = cmdS;
+  c.clearRect(0, 0, W, W);
+  c.imageSmoothingEnabled = true;
+  if (STRAT.bgCanvas) c.drawImage(STRAT.bgCanvas, 0, 0, W, W);
+  c.fillStyle = 'rgba(0,10,15,0.35)'; c.fillRect(0, 0, W, W);
+  c.strokeStyle = 'rgba(120,200,190,0.18)'; c.lineWidth = 1;
+  for (let i = 1; i < 8; i++) {
+    const p = i / 8 * W;
+    c.beginPath(); c.moveTo(p, 0); c.lineTo(p, W); c.stroke();
+    c.beginPath(); c.moveTo(0, p); c.lineTo(W, p); c.stroke();
+  }
+  // order lines
+  for (const e of enemies) {
+    if (!e.alive || !e.order || e.team !== 'blue') continue;
+    const g = stratGoal(e); if (!g) continue;
+    const [ax, ay] = cmdToMap(e.position.x, e.position.z), [bx, by] = cmdToMap(g.pos.x, g.pos.z);
+    c.strokeStyle = 'rgba(90,170,255,0.6)'; c.setLineDash([5, 4]);
+    c.beginPath(); c.moveTo(ax, ay); c.lineTo(bx, by); c.stroke(); c.setLineDash([]);
+  }
+  // capture points
+  for (const p of captPoints) {
+    const [mx, my] = cmdToMap(p.x, p.z);
+    const col = p.owner === 'blue' ? '#4488ff' : p.owner === 'red' ? '#ff4444' : '#999';
+    c.beginPath(); c.arc(mx, my, CAP_RADIUS / STRAT.R * W / 2 + 8, 0, 7);
+    c.fillStyle = col + '44'; c.fill(); c.strokeStyle = col; c.lineWidth = 2; c.stroke();
+    c.fillStyle = '#fff'; c.font = 'bold 15px system-ui'; c.textAlign = 'center'; c.fillText(p.id, mx, my + 5);
+  }
+  // support effects
+  for (const f of STRAT.fx) {
+    const [mx, my] = cmdToMap(f.x, f.z);
+    c.strokeStyle = f.team === 'blue' ? '#6bf' : '#f65'; c.lineWidth = 2;
+    c.beginPath(); c.arc(mx, my, (f.type === 'arty' ? 75 : 150) / STRAT.R * W / 2, 0, 7); c.stroke();
+    c.fillStyle = c.strokeStyle; c.font = '11px system-ui'; c.textAlign = 'center';
+    c.fillText(f.type === 'arty' ? 'ARTY' : 'STRIKE', mx, my - 6);
+  }
+  // units
+  for (const e of enemies) {
+    if (!e.alive) continue;
+    const [mx, my] = cmdToMap(e.position.x, e.position.z);
+    c.fillStyle = e.team === 'blue' ? '#5af' : '#f55';
+    if (e.kind === 'tank') c.fillRect(mx - 4, my - 4, 8, 8);
+    else { c.beginPath(); c.moveTo(mx, my - 6); c.lineTo(mx + 5, my + 5); c.lineTo(mx - 5, my + 5); c.fill(); }
+  }
+  // player
+  const [px, py] = cmdToMap(player.position.x, player.position.z);
+  const yaw = player.kind === 'tank' ? player.hullYaw : (new THREE.Euler().setFromQuaternion(player.quaternion, 'YXZ')).y;
+  c.save(); c.translate(px, py); c.rotate(yaw); c.fillStyle = '#0ff';
+  c.beginPath(); c.moveTo(0, -9); c.lineTo(6, 7); c.lineTo(0, 3); c.lineTo(-6, 7); c.closePath(); c.fill(); c.restore();
+  if (STRAT.usingPad) {
+    const kx = STRAT.cur.x * W, ky = STRAT.cur.y * W;
+    c.strokeStyle = '#fd6'; c.lineWidth = 2;
+    c.beginPath(); c.arc(kx, ky, 11, 0, 7); c.moveTo(kx - 18, ky); c.lineTo(kx - 6, ky); c.moveTo(kx + 6, ky); c.lineTo(kx + 18, ky);
+    c.moveTo(kx, ky - 18); c.lineTo(kx, ky - 6); c.moveTo(kx, ky + 6); c.lineTo(kx, ky + 18); c.stroke();
+  }
+  if (STRAT.mode) {
+    c.fillStyle = 'rgba(255,230,120,0.95)'; c.font = 'bold 13px system-ui'; c.textAlign = 'center';
+    c.fillText(STRAT.usingPad ? 'MOVE CURSOR · A PLACE · B CANCEL' : 'CLICK THE MAP TO PLACE · RIGHT-CLICK / ESC TO CANCEL', W / 2, 20);
+  }
+}
+function stratRefreshUI() {
+  if (!STRAT.open) return;
+  const set = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+  set('cmdCP', Math.floor(STRAT.cp.blue));
+  set('cmdRedCP', Math.floor(STRAT.cp.red));
+  for (const k of ['tank', 'plane']) {
+    const n = stratSquadUnits(k).filter(e => e.alive).length, tot = stratSquadUnits(k).length;
+    set('sq_' + k + '_n', n + '/' + tot);
+    set('sq_' + k + '_o', stratOrderLabel(STRAT.orders[k]));
+    document.getElementById('sq_' + k).classList.toggle('sel', STRAT.squad === k);
+  }
+  for (const id of Object.keys(STRAT_COST)) {
+    const b = document.getElementById('buy_' + id);
+    if (b) b.classList.toggle('dis', STRAT.cp.blue < STRAT_COST[id]);
+  }
+  for (const b of document.querySelectorAll('#cmd [data-mode]'))
+    b.classList.toggle('sel', !!STRAT.mode && (STRAT.mode.order === b.dataset.mode || STRAT.mode.id === b.dataset.mode));
+  const its = stratPadItems();
+  its.forEach((b, i) => b.classList.toggle('padsel', !!STRAT.usingPad && i === STRAT.padIdx));
+  cmdEl.classList.toggle('usingpad', !!STRAT.usingPad);
+}
+function stratPickMode(m) {
+  if (m === 'follow') { stratIssue({ type: 'follow', label: 'FOLLOW ME' }); stratRefreshUI(); return; }
+  if (m === 'free') { stratIssue(null); stratRefreshUI(); return; }
+  if (m === 'arty' || m === 'air') STRAT.mode = { type: 'support', id: m };
+  else STRAT.mode = { type: 'order', order: m };
+  stratRefreshUI();
+}
+cmdCv && cmdCv.addEventListener('contextmenu', e => { e.preventDefault(); STRAT.mode = null; stratRefreshUI(); });
+function stratClickWorld(wx, wz) {
+  if (!STRAT.mode) return;
+  const m = STRAT.mode;
+  if (m.type === 'support') {
+    if (stratSupportAt(m.id, wx, wz)) STRAT.mode = null;
+  } else if (m.order === 'attack') {
+    stratIssue({ type: 'attack', x: wx, z: wz, label: 'ATTACK GRID' });
+    STRAT.mode = null;
+  } else {
+    let best = null, bd = 1e12;
+    for (const p of captPoints) { const d = Math.hypot(p.x - wx, p.z - wz); if (d < bd) { bd = d; best = p; } }
+    if (!best || bd > STRAT.R * 0.18) { toast('CLICK A CAPTURE POINT'); }
+    else {
+      stratIssue({ type: m.order, capId: best.id, label: m.order.toUpperCase() + ' ' + best.id });
+      STRAT.mode = null;
+    }
+  }
+  stratRefreshUI();
+}
+cmdCv && cmdCv.addEventListener('mousedown', e => {
+  e.stopPropagation();
+  STRAT.usingPad = false;
+  if (e.button !== 0 || !STRAT.mode) return;
+  const r = cmdCv.getBoundingClientRect();
+  const [wx, wz] = cmdToWorld(e.clientX - r.left, e.clientY - r.top);
+  stratClickWorld(wx, wz);
+});
+cmdEl && cmdEl.addEventListener('mousemove', () => { if (STRAT.usingPad) { STRAT.usingPad = false; stratRefreshUI(); } });
+
+/* ---- controller support ---- */
+STRAT.cur = { x: 0.5, y: 0.5 }; STRAT.padIdx = 0; STRAT.usingPad = false; STRAT.padT = 0;
+function stratPadItems() { return Array.from(document.querySelectorAll('#cmd [data-mode], #cmd [data-buy]')); }
+function stratPadUpdate(gp, was, btn) {
+  const edge = (i) => i >= 0 && btn(i) && !was[i];
+  const now = performance.now(), dtR = Math.min(0.05, (now - (STRAT.padT || now)) / 1000); STRAT.padT = now;
+  if (edge(pad.command)) {
+    if (STRAT.open) { stratClose(); return true; }
+    if (stratCanOpen()) {
+      stratOpen();
+      STRAT.usingPad = true; STRAT.cur.x = 0.5; STRAT.cur.y = 0.5; STRAT.padIdx = 0;
+      stratRefreshUI();
+      return true;
+    }
+    return false;
+  }
+  if (!STRAT.open) return false;
+  let used = false;
+  // left stick (or right stick) moves the cursor
+  const dz = opts.deadzone;
+  const ax = applyDeadzone(gp.axes[0] ?? 0, dz) + applyDeadzone(gp.axes[2] ?? 0, dz);
+  const ay = applyDeadzone(gp.axes[1] ?? 0, dz) + applyDeadzone(gp.axes[3] ?? 0, dz);
+  if (ax || ay) {
+    used = true;
+    STRAT.cur.x = THREE.MathUtils.clamp(STRAT.cur.x + ax * dtR * 0.55, 0, 1);
+    STRAT.cur.y = THREE.MathUtils.clamp(STRAT.cur.y + ay * dtR * 0.55, 0, 1);
+  }
+  const items = stratPadItems();
+  if (edge(12)) { STRAT.padIdx = (STRAT.padIdx + items.length - 1) % items.length; used = true; }
+  if (edge(13)) { STRAT.padIdx = (STRAT.padIdx + 1) % items.length; used = true; }
+  if (edge(4) || edge(5)) { STRAT.squad = STRAT.squad === 'tank' ? 'plane' : 'tank'; used = true; }
+  if (edge(2)) {            // X: snap the cursor to the next capture point
+    if (captPoints.length) {
+      STRAT.snap = ((STRAT.snap || 0) + 1) % captPoints.length;
+      const c = captPoints[STRAT.snap]; const [mx, my] = cmdToMap(c.x, c.z);
+      STRAT.cur.x = mx / cmdS; STRAT.cur.y = my / cmdS; used = true;
+    }
+  }
+  if (edge(3)) {            // Y: snap the cursor to your own vehicle
+    const [mx, my] = cmdToMap(player.position.x, player.position.z);
+    STRAT.cur.x = THREE.MathUtils.clamp(mx / cmdS, 0, 1); STRAT.cur.y = THREE.MathUtils.clamp(my / cmdS, 0, 1); used = true;
+  }
+  if (edge(0)) {            // A: place on the map if an order/support is armed, otherwise press the highlighted button
+    used = true;
+    if (STRAT.mode) { const [wx, wz] = cmdToWorld(STRAT.cur.x * cmdS, STRAT.cur.y * cmdS); stratClickWorld(wx, wz); }
+    else if (items[STRAT.padIdx]) items[STRAT.padIdx].click();
+  }
+  if (edge(1)) {            // B: cancel armed action, else close
+    used = true;
+    if (STRAT.mode) { STRAT.mode = null; stratRefreshUI(); } else { stratClose(); return true; }
+  }
+  if (used) STRAT.usingPad = true;
+  stratRefreshUI();
+  return true;               // while the map is open the pad never flies the vehicle
+}
+cmdEl && cmdEl.addEventListener('mousedown', e => e.stopPropagation());
+document.querySelectorAll('#cmd [data-mode]').forEach(b => b.addEventListener('click', () => stratPickMode(b.dataset.mode)));
+document.querySelectorAll('#cmd [data-buy]').forEach(b => b.addEventListener('click', () => { stratBuy(b.dataset.buy); stratRefreshUI(); }));
+document.querySelectorAll('#cmd [data-sq]').forEach(b => b.addEventListener('click', () => { STRAT.squad = b.dataset.sq; stratRefreshUI(); }));
+document.getElementById('cmdClose') && document.getElementById('cmdClose').addEventListener('click', stratClose);
+
+// capture phase so Esc / G are handled before the game's own handlers
+window.addEventListener('keydown', e => {
+  if (rebinding) return;
+  if (e.code === (keys.command || 'KeyG') && !e.repeat) {
+    e.preventDefault(); e.stopImmediatePropagation();
+    if (STRAT.open) stratClose(); else stratOpen();
+    return;
+  }
+  if (STRAT.open && e.code === 'Escape') {
+    e.preventDefault(); e.stopImmediatePropagation();
+    if (STRAT.mode) { STRAT.mode = null; stratRefreshUI(); } else stratClose();
+  }
+}, true);
 
 /* ============================================================
    PROJECTILES / EXPLOSIONS
@@ -3634,6 +4436,7 @@ const KEY_ACTIONS = [
   ['throttleUp','Throttle Up'], ['throttleDown','Throttle Down'],
   ['fireGun','Fire Guns / Main Gun'], ['dropBomb','Drop Bomb / Machine Gun'],
   ['toggleCamera','Toggle Camera View'],
+  ['command','Command Map'],
   ['reset','Reset']
 ];
 const PAD_BUTTON_ACTIONS = [
@@ -3643,6 +4446,7 @@ const PAD_BUTTON_ACTIONS = [
   ['toggleLock','Radar Lock (X)'],
   ['scopeZoomIn','Scope Zoom In (D-Pad ↑)'], ['scopeZoomOut','Scope Zoom Out (D-Pad ↓)'],
   ['openMenu','Main Menu (D-Pad ←)'],
+  ['command','Command Map (Back / Select)'],
   ['reset','Reset']
 ];
 const PAD_AXIS_ACTIONS = [
@@ -3656,7 +4460,7 @@ const DEFAULTS = {
     yawLeft: 'KeyQ', yawRight: 'KeyE',
     throttleUp: 'ShiftLeft', throttleDown: 'ControlLeft',
     fireGun: 'Space', dropBomb: 'KeyB',
-    toggleCamera: 'KeyC', reset: 'KeyR'
+    toggleCamera: 'KeyC', reset: 'KeyR', command: 'KeyG'
   },
   pad: {
     // Sticks: left = drive/pitch-roll, right = turret/yaw (axes 2 + 3)
@@ -3673,6 +4477,7 @@ const DEFAULTS = {
     // Standard mapping: 12↑ 13↓ 14← 15→
     scopeZoomIn: 12, scopeZoomOut: 13,
     openMenu: 14,      // D-Pad Left → main menu
+    command: 8,        // Back / Select → command map
     reset: 9           // Start
   },
   opts: {
@@ -3794,6 +4599,7 @@ function pollGamepad() {
   // D-pad Left toggles the in-match pause menu even while paused.
   // Keep this before the paused early-return so a second press can resume.
   const btn = (i) => (i >= 0 && gp.buttons[i] && (gp.buttons[i].pressed || gp.buttons[i].value > 0.35));
+  if (!rebinding && stratPadUpdate(gp, wasPressed, btn)) return;
   if (pad.openMenu >= 0 && btn(pad.openMenu) && !wasPressed[pad.openMenu]) {
     if (document.getElementById('startScreen').classList.contains('hidden')) togglePauseMenu();
     return;
@@ -4397,7 +5203,12 @@ document.querySelectorAll('.hg-tabs button').forEach(btn => {
   };
 });
 
+let hangarFrom = null;   // 'gameover' when opened from the result screen
 function openHangar() {
+  const go = document.getElementById('gameover');
+  hangarFrom = go.classList.contains('show') ? 'gameover' : null;
+  go.classList.remove('show');
+  if (typeof stratClose === 'function') stratClose();
   hangarEl.classList.add('open');
   paused = true;
   if (document.pointerLockElement) document.exitPointerLock?.();
@@ -4414,9 +5225,22 @@ function openHangar() {
   else buildTanksTab();
   setTimeout(() => { resizePreview(); }, 30);
 }
-function closeHangar() {
+function closeHangar(deploying) {
   hangarEl.classList.remove('open');
   paused = false;
+  const from = hangarFrom; hangarFrom = null;
+  if (from === 'gameover') {
+    if (deploying) {
+      // DEPLOY from the result screen: a finished battle starts a fresh one, a death respawns you
+      vehicleChangedInHangar = false;
+      if (MATCH.ended) { fullReset(); }
+      else { applyCurrentVehicle(); resetPlayer(); }
+    } else {
+      // BACK: return to the result screen (vehicle change, if any, is applied on respawn / next battle)
+      document.getElementById('gameover').classList.add('show');
+    }
+    return;
+  }
   if (vehicleChangedInHangar) {
     vehicleChangedInHangar = false;
     applyCurrentVehicle();
@@ -4428,16 +5252,13 @@ function toggleHangar() {
   else openHangar();
 }
 
-document.getElementById('hgBack').onclick = () => closeHangar();
+document.getElementById('hgBack').onclick = () => closeHangar(false);
 document.getElementById('hgDeploy').onclick = () => {
-  closeHangar();
+  closeHangar(true);
   const ss = document.getElementById('startScreen');
   if (!ss.classList.contains('hidden')) { ss.classList.add('hidden'); fullReset(); }
 };
-document.getElementById('goHangar').onclick = () => {
-  document.getElementById('gameover').classList.remove('show');
-  openHangar();
-};
+document.getElementById('goHangar').onclick = () => { openHangar(); };
 
 /* ============================================================
    PLANE PHYSICS
@@ -5268,31 +6089,11 @@ function damageEnemy(e, amount, fromPlayer = true, fromPos = null) {
       MATCH.ticketsBlue = Math.max(0, MATCH.ticketsBlue - MATCH.ticketLossOnDeath);
     }
     updateTicketUI();
-    // Respawn after delay near team area
-    setTimeout(() => {
-      if (MATCH.ended || paused) return;
-      e.mesh.visible = true; e.alive = true; e.health = e.maxHealth;
-      const teamCaps = captPoints.filter(c => c.owner === e.team || c.owner === 'neutral');
-      if (e.kind === 'plane') {
-        if (teamCaps.length) {
-          const c = teamCaps[Math.floor(Math.random() * teamCaps.length)];
-          e.position.set(c.x + (Math.random() - 0.5) * 150, 250 + Math.random() * 150, c.z + (Math.random() - 0.5) * 150);
-        } else {
-          const a = Math.random() * Math.PI * 2, r = 800 + Math.random() * 500;
-          e.position.set(Math.cos(a) * r, 280, Math.sin(a) * r);
-        }
-        e.velocity.set(0, 0, -e.stats.speed);
-      } else {
-        if (teamCaps.length) {
-          const c = teamCaps[Math.floor(Math.random() * teamCaps.length)];
-          e.position.set(c.x + (Math.random() - 0.5) * 100, 0, c.z + (Math.random() - 0.5) * 100);
-        } else {
-          const a = Math.random() * Math.PI * 2, r = 300 + Math.random() * 300;
-          e.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
-        }
-        e.velocity.set(0, 0, 0);
-      }
-    }, 8000);
+    // Command points for the opposing team
+    if (NET.mode === 'offline') stratAddCP(e.team === 'red' ? 'blue' : 'red', e.kind === 'plane' ? 18 : 14);
+    // Redeploy: funded from CP in solo play, free timer in multiplayer
+    if (NET.mode === 'offline') e.respawnAt = STRAT.clock + 8;
+    else setTimeout(() => { if (MATCH.ended || paused) return; respawnUnit(e); }, 8000);
   } else if (fromPlayer) spawnExplosion(e.position, 3, 0xffcc44);
 }
 
@@ -5344,7 +6145,7 @@ function showHitmarker(crit = false) {
 const _m4 = new THREE.Matrix4();
 const _tmpVec = new THREE.Vector3();
 
-function findAITarget(e) {
+function findAITargetBase(e) {
   // Prefer opposite-team units; red also targets the player
   let best = null, bestD = 1e12;
   const foeTeam = e.team === 'blue' ? 'red' : 'blue';
@@ -5361,7 +6162,8 @@ function findAITarget(e) {
   if (!best) {
     const targets = captPoints.filter(c => c.owner !== e.team);
     if (targets.length) {
-      const c = targets[Math.floor(Math.random() * targets.length)];
+      let c = targets[0], cd = 1e12;
+      for (const t of targets) { const d = (t.x - e.position.x) ** 2 + (t.z - e.position.z) ** 2; if (d < cd) { cd = d; c = t; } }
       best = { pos: new THREE.Vector3(c.x, e.kind === 'plane' ? 180 : 0, c.z), kind: 'cap', isPlayer: false };
     }
   }
@@ -5436,7 +6238,7 @@ function updateEnemyTank(e, dt) {
   const dist = toTarget.length();
 
   let desiredVel;
-  if (dist > 180) {
+  if (dist > 180 || (target && target.kind === 'cap' && dist > CAP_RADIUS * 0.7)) {
     desiredVel = toTarget.clone().normalize().multiplyScalar(e.stats.speed);
   } else if (dist < 90 && target && target.kind !== 'cap') {
     desiredVel = toTarget.clone().normalize().multiplyScalar(-e.stats.speed * 0.4);
@@ -6351,12 +7153,15 @@ function fullReset() {
   for (const e of enemies) { scene.remove(e.mesh); disposeMesh(e.mesh); }
   enemies.length = 0;
   player.kills = 0;
+  stratReset();
   spawnWave();
   updateViewIndicator();
 }
 
 /** Leave the current match and return to the main menu. */
 function returnToMenu() {
+  stratReset();
+  { const h = document.getElementById('cpHud'); if (h) h.style.display = 'none'; }
   // Stop match simulation
   MATCH.active = false;
   MATCH.ended = true;
@@ -6407,7 +7212,7 @@ function returnToMenu() {
 const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), 0.05);
+  const dt = Math.min(clock.getDelta(), 0.05) * (STRAT.open ? STRAT.timeScale : 1);
 
   input.pitch = 0; input.roll = 0; input.yaw = 0; input.throttleDelta = 0;
   input.drive = 0; input.steer = 0; input.turretX = 0; input.turretY = 0;
@@ -6433,6 +7238,7 @@ function animate() {
     mouseSteer.x *= 0.88;
     mouseSteer.y *= 0.88;
 
+    if (STRAT.open) { input.fire = false; input.bomb = false; input.reset = false; input.pitch = input.roll = input.yaw = 0; input.drive = input.steer = 0; input.turretX = input.turretY = 0; input.throttleDelta = 0; mouseSteer.x = mouseSteer.y = 0; }
     input.pitch = THREE.MathUtils.clamp(input.pitch, -1, 1);
     input.roll  = THREE.MathUtils.clamp(input.roll, -1, 1);
     input.yaw   = THREE.MathUtils.clamp(input.yaw, -1, 1);
@@ -6448,6 +7254,8 @@ function animate() {
       updateCapturePoints(dt);
       if (Math.random() < dt * 0.35) maintainUnitCounts();
     }
+    updateStrategy(dt);
+    if (STRAT.open) { if (MATCH.ended || !player.alive) stratClose(); else { drawCommandMap(); stratRefreshUI(); } }
     updateBullets(dt);
     updateShells(dt);
     updateBombs(dt);
@@ -6490,6 +7298,7 @@ window.addEventListener('gamepaddisconnected', () => toast('Controller disconnec
 
 document.getElementById('respawn').onclick = () => {
   if (MATCH.ended) return;
+  if (vehicleChangedInHangar) { vehicleChangedInHangar = false; applyCurrentVehicle(); }
   resetPlayer();
   if (enemies.filter(e => e.alive && e.team === 'red').length < 2) spawnEnemy('red');
   if (enemies.filter(e => e.alive && e.team === 'blue').length < 1) spawnEnemy('blue');
