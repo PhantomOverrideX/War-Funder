@@ -1,0 +1,169 @@
+{
+ "files": {
+  "favicon.png": {
+   "sha256": "b0ad910068a8367a400f988b0d04d6642a7197bab3c29a321a4c0b2084c35238",
+   "size": 10647
+  },
+  "fighter-jet-sim.html": {
+   "sha256": "e1548ad51d8819c8af99f4875a3958315cc2682a455a5eb9fa2eb65f28f4b077",
+   "size": 440618
+  },
+  "icon.png": {
+   "sha256": "68650df24856f266fb57b47774fc97b501e7ec649f0a7793d02d561281088cb9",
+   "size": 461239
+  },
+  "index.html": {
+   "sha256": "9055ab586d5216b5cac811e8f2f569031346471eb4eb80b1fc7d3d8748046cf0",
+   "size": 170
+  },
+  "textures/README.txt": {
+   "sha256": "4b1300a2b1fe164510852a7a34080a01a13ceffc8d7dcc9ab03c9ddd545e6ef5",
+   "size": 445
+  },
+  "textures/armor.jpg": {
+   "sha256": "8ab435a750523aef4e3984d3476be31d73c33133d74b2ca1d576fcbc36077cbf",
+   "size": 100166
+  },
+  "textures/armor_normal.jpg": {
+   "sha256": "4bdfc368ce68fc10636e7735fc3f93921076afe176afe37773faefcb29f83c5f",
+   "size": 506043
+  },
+  "textures/brick.jpg": {
+   "sha256": "b1d987d227455ec3e541cbfdf2be3cbc8556fa7cad563b30c4cdaf6f7aa69169",
+   "size": 130400
+  },
+  "textures/brick_normal.jpg": {
+   "sha256": "3c867e01f227b1eb6b5cafe65d451f2eab07e0a4291ba625de194278f6d0bbfb",
+   "size": 362712
+  },
+  "textures/building.jpg": {
+   "sha256": "f4290057a7ef79b21e6d1d602ba6b913c5167459a3bbc68caf18cfc7dcdbf167",
+   "size": 45901
+  },
+  "textures/building_normal.jpg": {
+   "sha256": "504d446be1688bc11fd8686a00ea1b1744f6fe3ad046105cfe4f4046064bc55f",
+   "size": 267074
+  },
+  "textures/camo.jpg": {
+   "sha256": "573b21dcfc9f203ee55ffd2f40fbfca4ad4b78ff98ba690e2578705b6b224976",
+   "size": 65692
+  },
+  "textures/camo_normal.jpg": {
+   "sha256": "a4b456845266c775f69f5f261df0038111bbd49414286269266f4bce16163e8c",
+   "size": 552833
+  },
+  "textures/fabric.jpg": {
+   "sha256": "9aad9b79fc666d5c34f67fa62b19f7ffd8c809e49ddb7bf81f2d104b2e67f083",
+   "size": 82064
+  },
+  "textures/fabric_normal.jpg": {
+   "sha256": "9f677abf94ecd466e96022a9057e21e9cbee484b1eb2500d205943fb10f4d9a8",
+   "size": 400716
+  },
+  "textures/forest.jpg": {
+   "sha256": "cb1045023977b956f37ad3313936a0e3cc617c4d0ddee191f7564c8f70a632ad",
+   "size": 691720
+  },
+  "textures/forest_normal.jpg": {
+   "sha256": "a46bda7c5297554e20fe5469ace3bac255c2c83996308f73a4ba7b0c9eead73b",
+   "size": 423261
+  },
+  "textures/grass.jpg": {
+   "sha256": "b9540b85d938073f925855831145d87fbc43f68f65c57f3189d34521bc647562",
+   "size": 533345
+  },
+  "textures/grass_normal.jpg": {
+   "sha256": "0087c71ea24b50089531a90853643f670d1c7b440ca9420845ae3125be65b70f",
+   "size": 425876
+  },
+  "textures/manifest.json": {
+   "sha256": "53bf5be6298e347efbccc0f80a62119a9672eaacb7cac18db26075f48fb3b9b0",
+   "size": 2575
+  },
+  "textures/metal.jpg": {
+   "sha256": "0efcd139350f2b0603e325828c102db1d720e5a88814fb57686f4313daf746fc",
+   "size": 92948
+  },
+  "textures/metal_normal.jpg": {
+   "sha256": "bd157e3bed5804b7450883c6ff1bc0547a953c7a22aa7517c4c06bb54f7721f5",
+   "size": 402248
+  },
+  "textures/plaster.jpg": {
+   "sha256": "d86e1b90d0928422e73f44a7a6f7dbdbad31b19515227deee150bca0e0b25217",
+   "size": 39481
+  },
+  "textures/plaster_normal.jpg": {
+   "sha256": "e981fc8bd31d9967cec7a0785f6efe1f274ad3d7c7efe8146b36c291fe4baf33",
+   "size": 331078
+  },
+  "textures/rock.jpg": {
+   "sha256": "2b232a3379bc6e98bffdbb8f99ba29700dfdf9788d86eb47ce03274dd70ce91a",
+   "size": 338151
+  },
+  "textures/rock_normal.jpg": {
+   "sha256": "c02b80dd2c8f8dedd405ccbbdf22d276c1d0542c9d3e7d76c986ce5abec21fb7",
+   "size": 413227
+  },
+  "textures/roof.jpg": {
+   "sha256": "a397c367c0301d14d6d3eb4a23be1fb1ad01b719ac2915506b71463da06d55c9",
+   "size": 110057
+  },
+  "textures/roof_normal.jpg": {
+   "sha256": "e64a97d8ca653159d5a288d3b8d33b2c9087bd6f905964b906b056c01db77571",
+   "size": 150719
+  },
+  "textures/runway.jpg": {
+   "sha256": "155e1a4204422099ef017644007d6325c264442de4d96cef3bf97622a25be0fa",
+   "size": 185223
+  },
+  "textures/runway_normal.jpg": {
+   "sha256": "8b6d944efcf5b067a6bb9acf0dbe5113175d99ca1674944452f7df8c52ddae95",
+   "size": 238662
+  },
+  "textures/sand.jpg": {
+   "sha256": "a375a7446d35ccf180083c10450e2809dfe64c826114d9238daaf248211460ae",
+   "size": 368252
+  },
+  "textures/sand_normal.jpg": {
+   "sha256": "670b3ae6ed18c3bf73492bfe930523846bde788fdf92d2d699a2ade90cc2a30c",
+   "size": 372196
+  },
+  "textures/snow.jpg": {
+   "sha256": "e1a0bed03ac8121db05ef0c43b10c50ca04240924cee1ea06e6efe8aa12f1e97",
+   "size": 310472
+  },
+  "textures/snow_normal.jpg": {
+   "sha256": "78c2b423e4ff09e4933ea478bec36609bca8c2567c21a774f8407fd01400763d",
+   "size": 325988
+  },
+  "textures/tracks.jpg": {
+   "sha256": "64d9cf1104caf1a92dbf4bfff17e67e41bd8641d9ab0e01ab746a46d2222cb1c",
+   "size": 72422
+  },
+  "textures/tracks_normal.jpg": {
+   "sha256": "4c6872cddc1af7cb9c74021e5438ac014342558dbb7615b80f09c388cdf9bc8a",
+   "size": 102001
+  },
+  "textures/urban.jpg": {
+   "sha256": "c21966587c9820fdef296aaca442fc74afa88aa49b4524705e90efd5c5ee2230",
+   "size": 309237
+  },
+  "textures/urban_normal.jpg": {
+   "sha256": "cd685b2bfc9a86537fc144c192a4bfe438f365075b4e21bc319a75f25787f946",
+   "size": 435965
+  },
+  "textures/wood.jpg": {
+   "sha256": "e078fe0b3f7f4ffbf263737c707ee19e51373873883d7c7dc4d205cc8063cc81",
+   "size": 94350
+  },
+  "textures/wood_normal.jpg": {
+   "sha256": "27f81ab2c48c6e2dcc04636d8841a13960b8f93d7d417f3c013418ccc2ede465",
+   "size": 360725
+  },
+  "updater.py": {
+   "sha256": "6c04f7166cc7dd3fa92ba5b5ab9521e8af5872415905c5dc3d813608807dc87e",
+   "size": 4649
+  }
+ },
+ "version": "2026.11.14-2"
+}

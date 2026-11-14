@@ -595,6 +595,35 @@ body { font-family: var(--stencil); color: var(--ink); }
 #cmd .btn2.padsel { outline: 2px solid var(--amber); outline-offset: 2px; }
 #cmd .hint, #cmdPadHint { color: var(--ink-dim); }
 #cmdClose { border: 1px solid var(--steel-3); color: var(--steel-2); border-radius: 0; font-weight: 800; }
+
+/* ---------- decals tab ---------- */
+.dc-controls { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
+.dc-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.dc-pill { font-family: var(--stencil); font-weight: 800; letter-spacing: 3px; font-size: 12px; color: #0d151c; border: none; cursor: pointer; padding: 10px 22px 8px;
+  clip-path: polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%); background: linear-gradient(180deg,#9aa4ab,#5d676e); text-align: center; }
+.dc-pill small { display: block; font-size: 9px; letter-spacing: 1px; font-weight: 600; opacity: .75; }
+.dc-pill.on { background: linear-gradient(180deg,#c3cad0,#7e888f); }
+.dc-pill.active { color: #fff; background: linear-gradient(180deg,#f0463a,#a8180f); }
+.dc-label { color: #ff9d92; letter-spacing: 4px; font-weight: 800; font-size: 11px; margin-top: 4px; }
+.dc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 8px; }
+.dc-item { cursor: pointer; text-align: center; padding: 8px 4px 6px; border-radius: 8px; border: 2px solid rgba(138,148,155,.45);
+  background: linear-gradient(180deg, rgba(34,70,126,.55), rgba(8,20,42,.8)); transition: border-color .12s; }
+.dc-item:hover { border-color: var(--steel-1); }
+.dc-item.sel { border-color: var(--red-l); box-shadow: 0 0 14px rgba(208,38,30,.45); }
+.dc-item canvas { width: 56px; height: 56px; display: block; margin: 0 auto 4px; }
+.dc-item span { font-size: 9px; letter-spacing: 1.5px; font-weight: 700; color: var(--steel-2); }
+.dc-ctl { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: center; padding: 12px 14px; border: 1px solid rgba(195,202,208,.25); border-radius: 6px; background: rgba(6,14,30,.6); }
+.dc-ctl label { display: flex; align-items: center; gap: 8px; font-size: 11px; letter-spacing: 2px; font-weight: 800; color: var(--steel-2); }
+.dc-ctl input[type=color] { width: 44px; height: 30px; border: 2px solid var(--steel-3); border-radius: 3px; background: none; padding: 0; cursor: pointer; }
+.dc-ctl input[type=range] { width: 150px; accent-color: var(--red); }
+.dc-ctl b { color: var(--amber); font-family: monospace; min-width: 44px; }
+.dc-text { width: 80px; background: rgba(2,8,18,.85); border: 1px solid var(--steel-3); color: var(--steel-1); padding: 6px 8px; font-size: 16px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; text-align: center; border-radius: 3px; }
+.dc-foot { display: flex; gap: 10px; }
+.dc-btn { font-family: var(--stencil); font-weight: 800; letter-spacing: 3px; font-size: 11px; color: #0d151c; border: none; cursor: pointer; padding: 9px 20px;
+  clip-path: polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%); background: linear-gradient(180deg,#e2e7ea,#aab3b9 50%,#78828a); }
+.dc-btn:hover { filter: brightness(1.12); }
+.dc-note { font-size: 11px; color: var(--ink-dim); line-height: 1.5; }
+#hg-decals .hg-preview { min-height: 360px; }
 </style>
 </head>
 <body>
@@ -692,8 +721,10 @@ body { font-family: var(--stencil); color: var(--ink); }
   <div class="hg-tabs">
     <button data-hg="aircraft" class="active">AIRCRAFT</button>
     <button data-hg="tanks">TANKS</button>
+    <button data-hg="ships">SHIPS</button>
     <button data-hg="upgrades">UPGRADES</button>
     <button data-hg="paint">PAINT</button>
+    <button data-hg="decals">DECALS</button>
   </div>
   <div class="hg-body">
     <div id="hg-aircraft" class="hg-panel active">
@@ -718,6 +749,17 @@ body { font-family: var(--stencil); color: var(--ink); }
         </div>
       </div>
     </div>
+    <div id="hg-ships" class="hg-panel">
+      <div class="hg-aircraft-layout">
+        <div class="hg-aircraft-list" id="hgShipsList"></div>
+        <div class="hg-preview">
+          <div class="pv-canvas" id="pvCanvasShip"></div>
+          <div class="pv-name" id="pvNameShip">—</div>
+          <div class="pv-era" id="pvEraShip">—</div>
+          <div class="pv-stats" id="pvStatsShip"></div>
+        </div>
+      </div>
+    </div>
     <div id="hg-upgrades" class="hg-panel">
       <div class="hg-selection-note">UPGRADING: <span id="hgUpgWhich">—</span></div>
       <div id="hgUpgradesList"></div>
@@ -725,6 +767,17 @@ body { font-family: var(--stencil); color: var(--ink); }
     <div id="hg-paint" class="hg-panel">
       <div class="hg-selection-note">PAINT FOR: <span id="hgPaintWhich">—</span></div>
       <div class="paint-grid" id="hgPaintGrid"></div>
+    </div>
+    <div id="hg-decals" class="hg-panel">
+      <div class="hg-selection-note">DECALS FOR: <span id="hgDecalWhich">—</span></div>
+      <div class="hg-aircraft-layout">
+        <div class="dc-controls" id="dcControls"></div>
+        <div class="hg-preview">
+          <div class="pv-canvas" id="pvCanvasDecal"></div>
+          <div class="pv-name" id="pvNameDecal">—</div>
+        </div>
+      </div>
+      <input type="file" id="dcFile" accept="image/*" style="display:none">
     </div>
   </div>
   <div class="hg-footer">
@@ -999,6 +1052,35 @@ const TANKS = [
       mgDamage: 10, mgCooldown: 0.07, mgSpeed: 950,
       gunPositions: [{x:0,y:0,z:-2.5}] } }
 ];
+
+const SHIP_DEFS = [
+  { id: 'torpboat', tier: 0, unlockKills: 0, name: 'Torpedo Boat', era: 'WWI · 1914', mesh: 'torpboat', naval: true,
+    desc: 'Fast little hull with a deck gun and two torpedo tubes. Hit hard, then run.',
+    colors: { body: 0x7a8288, accent: 0x3a2f2a }, cockpit: { x: 0, y: 4.2, z: -2 }, muzzleY: 2.1, muzzleFwd: 3.6, turretZ: -8, hitR: 7, hitH: 6, camScale: 1.7,
+    base: { maxSpeed: 24, accel: 5, turnRate: 0.75, health: 260, turretTraverse: 1.5, turretElevation: [-0.05, 0.40],
+      mainGunDamage: 85, mainGunSpeed: 520, mainGunCooldown: 1.4, mainGunAmmo: 70, mgDamage: 5, mgCooldown: 0.1, mgSpeed: 800, torpedoDamage: 450,
+      gunPositions: [{x:0,y:0,z:-1.5}] } },
+  { id: 'destroyer', tier: 1, unlockKills: 20, name: 'Destroyer', era: 'WWII · 1942', mesh: 'destroyer', naval: true,
+    desc: 'Five-inch guns, a full torpedo salvo and the speed to choose the fight.',
+    colors: { body: 0x707a82, accent: 0x32302e }, cockpit: { x: 0, y: 7, z: -6 }, muzzleY: 4.8, muzzleFwd: 5.4, turretZ: -20, hitR: 14, hitH: 10, camScale: 2.7,
+    base: { maxSpeed: 28, accel: 4.5, turnRate: 0.5, health: 520, turretTraverse: 1.3, turretElevation: [-0.05, 0.45],
+      mainGunDamage: 140, mainGunSpeed: 640, mainGunCooldown: 1.5, mainGunAmmo: 90, mgDamage: 7, mgCooldown: 0.09, mgSpeed: 850, torpedoDamage: 600,
+      gunPositions: [{x:0,y:0,z:-2.5}] } },
+  { id: 'cruiser', tier: 2, unlockKills: 55, name: 'Light Cruiser', era: 'WWII · 1938', mesh: 'cruiser', naval: true,
+    desc: 'Triple 6-inch turrets and a thick belt. Slow to turn, terrible to face.',
+    colors: { body: 0x6a747c, accent: 0x2e2c2a }, cockpit: { x: 0, y: 9, z: -8 }, muzzleY: 5.7, muzzleFwd: 7, turretZ: -33, hitR: 19, hitH: 14, camScale: 3.5,
+    base: { maxSpeed: 24, accel: 3.5, turnRate: 0.38, health: 900, turretTraverse: 1.0, turretElevation: [-0.05, 0.50],
+      mainGunDamage: 200, mainGunSpeed: 780, mainGunCooldown: 1.7, mainGunAmmo: 110, mgDamage: 9, mgCooldown: 0.08, mgSpeed: 900,
+      gunPositions: [{x:0,y:0,z:-3}] } },
+  { id: 'frigate', tier: 3, unlockKills: 100, name: 'Missile Frigate', era: 'Modern · 1985', mesh: 'frigate', naval: true,
+    desc: 'Automatic 76 mm gun, close-in weapon system and a radar mast that sees everything.',
+    colors: { body: 0x8a929a, accent: 0x3a3e42 }, cockpit: { x: 0, y: 10, z: -4 }, muzzleY: 4.9, muzzleFwd: 4.5, turretZ: -26, hitR: 16, hitH: 14, camScale: 3.1,
+    base: { maxSpeed: 30, accel: 5, turnRate: 0.5, health: 760, turretTraverse: 1.6, turretElevation: [-0.08, 0.50],
+      mainGunDamage: 260, mainGunSpeed: 950, mainGunCooldown: 1.2, mainGunAmmo: 100, mgDamage: 12, mgCooldown: 0.06, mgSpeed: 950,
+      gunPositions: [{x:0,y:0,z:-2.5}] } }
+];
+TANKS.push(...SHIP_DEFS);
+const LAND_TANKS = TANKS.filter(t => !t.naval);
 
 /* ============================================================
    UPGRADES (planes)
@@ -2054,10 +2136,293 @@ function buildAbrams(colors, opt = {}) {           // M1 Abrams
   return grp;
 }
 
+/* ============================================================
+   SHIPS — the navy. Authored nose = -Z, waterline at y = 0.
+   They are played and driven through the same code path as tanks (kind 'tank', naval flag).
+   ============================================================ */
+function shipPlan(L, B) {
+  const h = L / 2, b = B / 2;
+  const R = [[0, -h], [b * 0.3, -h + L * 0.06], [b * 0.75, -h + L * 0.2], [b, -h + L * 0.36], [b, h - L * 0.22], [b * 0.92, h - L * 0.08], [b * 0.7, h]];
+  return R.concat(R.slice(1).map(p => [-p[0], p[1]]).reverse());
+}
+function shipTurretMesh(b, k, nb, ln, x0, y0, z0, dir) {     // fixed (non-rotating) gun house with `nb` barrels
+  b.cylY(1.45 * k, 1.65 * k, 0.4, 'hull', x0, y0 + 0.2, z0, 14);
+  b.box(2.5 * k, 1.05 * k, 2.8 * k, 'hull', x0, y0 + 0.9 * k, z0 + 0.1 * k * dir);
+  b.box(2.2 * k, 0.12 * k, 2.4 * k, 'accent', x0, y0 + 1.46 * k, z0 + 0.1 * k * dir);
+  for (let i = 0; i < nb; i++) { const xx = (i - (nb - 1) / 2) * 0.72 * k; b.cylZ(0.15 * k, 0.19 * k, ln, 'gun', x0 + xx, y0 + 0.95 * k, z0 - dir * (ln / 2 + 1.2 * k), 8); }
+}
+function buildShip(spec, colors, opt = {}) {
+  const M = tankMats(colors), h = new Batch(), t = new Batch(), g = new Batch();
+  const { L, B, fb, dr, k } = spec, plan = shipPlan(L, B);
+  h.add(topExtrude(plan, fb), 'hull');
+  { const low = topExtrude(plan.map(p => [p[0] * 0.97, p[1] * 0.985]), dr); low.translate(0, -dr, 0); h.add(low, 'accent'); }
+  { const bt = topExtrude(plan.map(p => [p[0] * 1.006, p[1]]), 0.7); bt.translate(0, -0.35, 0); h.add(bt, 'dark'); }
+  { const dk = topExtrude(plan.map(p => [p[0] * 0.9, p[1] * 0.93]), 0.16); dk.translate(0, fb, 0); h.add(dk, 'steel'); }
+  for (const sx of [-1, 1]) {                                                          // rails + lifeboats + bollards
+    h.strut([sx * B * 0.45, fb + 0.9, -L * 0.3], [sx * B * 0.45, fb + 0.9, L * 0.4], 0.05, 'steel');
+    h.strut([sx * B * 0.45, fb + 0.45, -L * 0.3], [sx * B * 0.45, fb + 0.45, L * 0.4], 0.04, 'steel');
+    h.box(0.9 * k, 0.5 * k, 3.2 * k, 'canvas', sx * B * 0.3, fb + 0.4 * k, L * 0.06);
+  }
+  h.cylY(0.35 * k, 0.45 * k, 0.5, 'dark', 0, fb + 0.3, -L * 0.43, 8);               // anchor winch
+  for (const [w, hh, d, z, y0] of spec.sup) {
+    h.box(w, hh, d, 'hull', 0, y0 + hh / 2, z);
+    h.box(w * 1.04, 0.35 * k, d * 1.04, 'accent', 0, y0 + hh + 0.17 * k, z);
+    h.box(w * 0.96, hh * 0.22, 0.12, 'glass', 0, y0 + hh * 0.64, z - d / 2 - 0.03);
+    h.box(0.12, hh * 0.22, d * 0.96, 'glass', w / 2 + 0.03, y0 + hh * 0.64, z); h.box(0.12, hh * 0.22, d * 0.96, 'glass', -w / 2 - 0.03, y0 + hh * 0.64, z);
+  }
+  for (const [z, r, hg, y0] of spec.funnels || []) { h.cylY(r * 0.88, r, hg, 'accent', 0, y0 + hg / 2, z, 14); h.cylY(r * 0.9, r * 0.9, 0.55, 'dark', 0, y0 + hg + 0.15, z, 14); }
+  for (const [z, hg, y0] of spec.masts || []) {
+    h.strut([0, y0, z], [0, y0 + hg, z], 0.17 * k + 0.05, 'steel');
+    h.box(hg * 0.32, 0.16, 0.16, 'steel', 0, y0 + hg * 0.68, z); h.box(hg * 0.22, 0.28, 0.14, 'dark', 0, y0 + hg + 0.2, z);
+  }
+  for (const [z, y0, sz, dir, nb, ln] of spec.fixed || []) {
+    if (y0 > fb + 0.3) h.box(2.8 * sz, y0 - fb, 3.2 * sz, 'hull', 0, fb + (y0 - fb) / 2, z);
+    shipTurretMesh(h, sz, nb || 2, ln || 4.4 * sz, 0, y0, z, dir);
+  }
+  for (const [z, y0, n] of spec.tubes || []) {
+    h.cylY(0.5, 0.6, 0.25, 'dark', 0, y0 + 0.12, z, 10);
+    for (let i = 0; i < n; i++) h.cylZ(0.27, 0.27, 3.4, 'steel', (i - (n - 1) / 2) * 0.62, y0 + 0.6, z, 8);
+  }
+  if (spec.extra) spec.extra(h, fb);
+  // the playable (rotating) gun
+  t.cylY(1.5 * k, 1.7 * k, 0.4, 'hull', 0, 0.2, 0, 14);
+  t.box(2.5 * k, 1.05 * k, 2.8 * k, 'hull', 0, 0.9 * k, 0.1 * k);
+  t.box(2.2 * k, 0.12 * k, 2.4 * k, 'accent', 0, 1.46 * k, 0.1 * k);
+  const nb = spec.barrels, ln = spec.barrelLen;
+  for (let i = 0; i < nb; i++) { const xx = (i - (nb - 1) / 2) * 0.72 * k; g.cylZ(0.15 * k, 0.19 * k, ln, 'gun', xx, 0, -ln / 2); g.cylZ(0.26 * k, 0.26 * k, 0.9 * k, 'steel', xx, 0, -0.5 * k, 8); }
+  const grp = tankGroup(h, t, g, M, [0, fb + (spec.tY || 0), spec.tZ], [0, 0.95 * k, -1.2 * k]);
+  if (opt.team) {                                       // team-coloured bridge roof, bow stripe and aft deck panel
+    const tm = new THREE.MeshStandardMaterial({ color: TEAM_COL[opt.team], roughness: 0.6, emissive: opt.team === 'red' ? 0x300000 : 0x001230 });
+    const s0 = spec.sup[0], sl = spec.sup[spec.sup.length - 1];
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(sl[0] * 0.8, 0.05, sl[2] * 0.8), tm); roof.position.set(0, sl[4] + sl[1] + 0.5 * k, sl[3]); grp.add(roof);
+    const bow = new THREE.Mesh(new THREE.BoxGeometry(B * 0.55, 0.05, L * 0.05), tm); bow.position.set(0, fb + 0.2, -L * 0.36); grp.add(bow);
+    const aft = new THREE.Mesh(new THREE.BoxGeometry(B * 0.5, 0.05, L * 0.07), tm); aft.position.set(0, fb + 0.2, L * 0.4); grp.add(aft);
+  }
+  return grp;
+}
+const SHIP_SPECS = {
+  torpboat: { L: 26, B: 4.6, fb: 1.5, dr: 0.9, k: 0.55, tZ: -8, barrels: 1, barrelLen: 3.2,
+    sup: [[2.4, 1.5, 3.6, -2.0, 1.5]], funnels: [[3.2, 0.7, 2.6, 1.5]], masts: [[-2.0, 5.0, 3.0]], tubes: [[6.5, 1.5, 2], [10, 1.5, 2]] },
+  destroyer: { L: 62, B: 8.2, fb: 3.6, dr: 2.4, k: 1.0, tZ: -20, tY: 0.1, barrels: 2, barrelLen: 5.2,
+    fixed: [[-12.5, 5.6, 0.9, 1, 2], [16, 3.6, 0.9, -1, 2], [22, 3.6, 0.9, -1, 2]],
+    sup: [[5.6, 3, 8.5, -2, 3.6], [3.6, 2.2, 4.5, -2.5, 6.6]], funnels: [[5, 1.3, 5, 3.6], [10.5, 1.3, 5, 3.6]], masts: [[-2.5, 13, 8.8], [13, 6, 3.6]], tubes: [[7.8, 3.6, 5]] },
+  cruiser: { L: 94, B: 10.6, fb: 4.4, dr: 3, k: 1.25, tZ: -33, barrels: 3, barrelLen: 6.4,
+    fixed: [[-24, 6.8, 1.2, 1, 3, 5.6], [22, 4.4, 1.2, -1, 3, 5.6], [31, 4.4, 1.2, -1, 3, 5.6]],
+    sup: [[7, 3.6, 12, -9, 4.4], [5, 2.8, 7, -10, 8], [3.4, 2, 3.6, -10, 10.8]], funnels: [[3, 2.0, 7, 4.4], [12, 2.0, 7, 4.4]], masts: [[-10, 12, 12.8], [20, 8, 4.4]],
+    extra(h, fb) { for (const sx of [-1, 1]) for (const z of [-4, 6, 16]) { h.box(1.8, 1.3, 2.4, 'hull', sx * 4.3, fb + 0.65, z); h.cylZ(0.12, 0.12, 2.0, 'gun', sx * 4.6, fb + 0.8, z - 2.0, 6); } } },
+  frigate: { L: 78, B: 9.6, fb: 4.2, dr: 2.6, k: 0.75, tZ: -26, barrels: 1, barrelLen: 4.0,
+    sup: [[8.6, 5, 24, 2, 4.2], [6.6, 2.8, 9, -6, 9.2]], funnels: [[10, 1.1, 3, 9.2]], masts: [[2, 15, 9.2], [-6, 7, 12]],
+    extra(h, fb) {
+      h.box(5, 0.5, 7, 'dark', 0, fb + 0.25, -14);                       // vertical launch cells
+      for (const sx of [-1, 1]) for (let i = 0; i < 4; i++) h.box(0.55, 0.55, 3.4, 'steel', sx * (1.4 + i * 0.7), fb + 0.9, 22, -0.45, 0, 0);
+      h.sph(1.5, 'steel', 0, 14.2, 2, 1, 1, 1);                          // radome
+      h.cylY(4.2, 4.2, 0.14, 'dark', 0, fb + 0.1, 30, 20);              // helipad
+      h.cylY(0.5, 0.6, 0.6, 'steel', 0, fb + 0.4, 14, 10); h.cylY(0.5, 0.5, 1.4, 'steel', 0, fb + 1.2, 14, 10);   // close-in weapon
+    } }
+};
+function buildShipByKind(kind, colors, opt) { return buildShip(SHIP_SPECS[kind], colors, opt); }
+
+/* ---------- naval helpers: water tests, sway, wakes, splashes ---------- */
+const navalOK = (x, z) => waterDepthAt(x, z) >= 7;
+const landOK = (x, z) => waterDepthAt(x, z) < 1.8;
+const SHIPS = TANKS.filter(t => t.naval);
+function fleetZone(team) { const f = currentMap && currentMap.fleet; return f ? f[team] : null; }
+const _se = new THREE.Euler();
+function shipSway(mesh, pos, yaw, spd, maxSpd) {
+  const t = performance.now() * 0.001, ph = pos.x * 0.013 + pos.z * 0.011;
+  const k = (currentMap && currentMap.water && currentMap.water.wave) || 0.5;
+  mesh.position.set(pos.x, pos.y + Math.sin(t * 1.1 + ph) * 0.25 * k, pos.z);
+  _se.set(Math.sin(t * 0.8 + ph) * 0.012 * k + Math.min(0.03, Math.abs(spd) / Math.max(1, maxSpd) * 0.03), yaw, Math.sin(t * 0.95 + ph * 1.7) * 0.02 * k, 'YXZ');
+  mesh.quaternion.setFromEuler(_se);
+}
+function shipHit(e, p) {
+  const dx = p.x - e.position.x, dz = p.z - e.position.z;
+  return dx * dx + dz * dz < e.hitR * e.hitR && p.y < e.position.y + e.hitH && p.y > e.position.y - 3;
+}
+const WAKE = { pool: [], i: 0, geo: null };
+function wakeEmit(x, z, w, life, op = 0.5) {
+  if (!currentMap || currentMap.sea == null) return;
+  if (!WAKE.geo) { WAKE.geo = new THREE.PlaneGeometry(1, 1); WAKE.geo.rotateX(-Math.PI / 2); }
+  let it = WAKE.pool[WAKE.i];
+  if (!it) {
+    const m = new THREE.Mesh(WAKE.geo, new THREE.MeshBasicMaterial({ color: 0xf4fbff, transparent: true, opacity: 0, depthWrite: false }));
+    m.renderOrder = 3; m.visible = false; scene.add(m);
+    it = WAKE.pool[WAKE.i] = { m, age: 99, life: 1, w: 1, op: 0.5 };
+  }
+  WAKE.i = (WAKE.i + 1) % 90;
+  it.age = 0; it.life = life; it.w = w; it.op = op;
+  it.m.position.set(x, currentMap.sea + 0.14, z); it.m.rotation.y = Math.random() * 6.28; it.m.visible = true;
+  it.m.scale.set(w, 1, w * 1.4);
+}
+function updateWakes(dt) {
+  for (const it of WAKE.pool) {
+    if (!it.m.visible) continue;
+    it.age += dt;
+    if (it.age >= it.life) { it.m.visible = false; continue; }
+    const f = it.age / it.life;
+    it.m.scale.set(it.w * (1 + f * 2.4), 1, it.w * 1.4 * (1 + f * 2.4));
+    it.m.material.opacity = it.op * (1 - f) * (1 - f);
+  }
+}
+function splashFx(pos, size) {
+  spawnExplosion(new THREE.Vector3(pos.x, pos.y + size * 0.5, pos.z), size * 0.7, 0xdff2ff);
+  spawnExplosion(new THREE.Vector3(pos.x, pos.y + size * 1.1, pos.z), size * 0.45, 0xf4fbff);
+  wakeEmit(pos.x, pos.z, size * 0.9, 1.6, 0.6); wakeEmit(pos.x, pos.z, size * 0.5, 1.0, 0.7);
+}
+function shipWake(pos, yaw, spd, ship, dtAcc, holder) {
+  holder.t = (holder.t || 0) - dtAcc;
+  if (holder.t > 0 || Math.abs(spd) < 3) return;
+  holder.t = 0.11;
+  const fx = -Math.sin(yaw), fz = -Math.cos(yaw), L = (SHIP_SPECS[ship.id] ? SHIP_SPECS[ship.id].L : 40), w = Math.min(7, 2 + Math.abs(spd) * 0.16);
+  wakeEmit(pos.x + fx * L * 0.42, pos.z + fz * L * 0.42, w, 2.4, 0.5);
+  if (Math.abs(spd) > 8) wakeEmit(pos.x - fx * L * 0.4, pos.z - fz * L * 0.4, w * 0.6, 1.0, 0.55);   // bow wave
+}
+
+/* ---------- torpedoes ---------- */
+const TORPS = [];
+let torpGeo = null, torpMat = null;
+function fireTorpedo(pos, dir, dmg, team, fromPlayer) {
+  if (!torpGeo) { torpGeo = new THREE.CylinderGeometry(0.35, 0.35, 5.5, 8); torpGeo.rotateX(Math.PI / 2); torpMat = new THREE.MeshStandardMaterial({ color: 0x4a5058, metalness: 0.6, roughness: 0.4 }); }
+  const m = new THREE.Mesh(torpGeo, torpMat); scene.add(m);
+  const d = new THREE.Vector3(dir.x, 0, dir.z).normalize();
+  TORPS.push({ mesh: m, pos: new THREE.Vector3(pos.x, seaLevel() - 0.3, pos.z), dir: d, speed: 36, dmg, team, fromPlayer, life: 24, wake: 0 });
+  m.position.copy(TORPS[TORPS.length - 1].pos); m.lookAt(m.position.clone().add(d));
+}
+function updateTorpedoes(dt) {
+  for (let i = TORPS.length - 1; i >= 0; i--) {
+    const t = TORPS[i]; let done = false;
+    t.life -= dt; t.pos.addScaledVector(t.dir, t.speed * dt); t.mesh.position.copy(t.pos);
+    t.wake -= dt; if (t.wake <= 0) { t.wake = 0.14; wakeEmit(t.pos.x, t.pos.z, 1.3, 1.6, 0.55); }
+    if (waterDepthAt(t.pos.x, t.pos.z) < 2.5) { splashFx(new THREE.Vector3(t.pos.x, seaLevel(), t.pos.z), 9); explodeBomb(new THREE.Vector3(t.pos.x, seaLevel() + 1.5, t.pos.z), 34, t.dmg * 0.4, t.team); done = true; }
+    if (!done) for (const e of enemies) {
+      if (!e.alive || !e.naval || e.team === t.team) continue;
+      const dx = t.pos.x - e.position.x, dz = t.pos.z - e.position.z;
+      if (dx * dx + dz * dz < e.hitR * e.hitR) { damageEnemy(e, t.dmg, t.fromPlayer, t.pos); splashFx(new THREE.Vector3(t.pos.x, seaLevel(), t.pos.z), 14); explodeBomb(new THREE.Vector3(t.pos.x, seaLevel() + 3, t.pos.z), 30, t.dmg * 0.25, t.team); done = true; break; }
+    }
+    if (!done && t.team === 'red' && player.alive && player.kind === 'tank' && activeTank && activeTank.naval) {
+      const dx = t.pos.x - player.position.x, dz = t.pos.z - player.position.z;
+      if (dx * dx + dz * dz < activeTank.hitR * activeTank.hitR) { damagePlayer(t.dmg); splashFx(new THREE.Vector3(t.pos.x, seaLevel(), t.pos.z), 14); done = true; }
+    }
+    if (t.life <= 0) done = true;
+    if (done) { scene.remove(t.mesh); TORPS.splice(i, 1); }
+  }
+}
+function clearTorpedoes() { for (const t of TORPS) scene.remove(t.mesh); TORPS.length = 0; }
+
+/* ---------- AI fleets ---------- */
+function shipTierForMatch() {
+  if (player.kind === 'tank' && activeTank && activeTank.naval) return activeTank.tier;
+  return Math.min(SHIPS.length - 1, Math.floor(prog.totalKills / 30));
+}
+function enemyShipStats(ship) {
+  const b = ship.base;
+  return { speed: b.maxSpeed * 0.75, health: b.health * 0.8, damage: b.mainGunDamage * 0.7, fireCd: b.mainGunCooldown * 1.9, shellSpeed: b.mainGunSpeed, torp: b.torpedoDamage ? b.torpedoDamage * 0.7 : 0 };
+}
+function shipSpawnPos(team) {
+  const z = fleetZone(team);
+  for (let k = 0; k < 14; k++) {
+    const c = z[Math.floor(Math.random() * z.length)], x = c[0] + (Math.random() - 0.5) * 220, zz = c[1] + (Math.random() - 0.5) * 220;
+    if (waterDepthAt(x, zz) >= 12) return new THREE.Vector3(x, seaLevel(), zz);
+  }
+  return new THREE.Vector3(z[0][0], seaLevel(), z[0][1]);
+}
+function spawnEnemyShip(team = 'red') {
+  if (!fleetZone(team)) return;
+  const ship = SHIPS[Math.max(0, Math.min(SHIPS.length - 1, shipTierForMatch() + (Math.random() < 0.3 ? 1 : 0)))] || SHIPS[0];
+  const st = enemyShipStats(ship), pos = shipSpawnPos(team);
+  const grp = createTankMesh(ship, team === 'red' ? { body: 0x6c7076, accent: 0x2e2a28 } : null, { team });
+  scene.add(grp);
+  enemies.push({ kind: 'tank', naval: true, team, mesh: grp, position: pos, velocity: new THREE.Vector3(), quaternion: new THREE.Quaternion(),
+    hullYaw: Math.atan2(pos.x, pos.z), turretYaw: 0, turretPitch: 0, health: st.health, maxHealth: st.health, alive: true,
+    fireCd: 2 + Math.random() * 3, torpCd: 8 + Math.random() * 10, circleDir: Math.random() < 0.5 ? 1 : -1, stats: st, ship, hitR: ship.hitR, hitH: ship.hitH, wakeH: {} });
+}
+function fleetTargets() {
+  if (!currentMap || !currentMap.fleet) return { red: 0, blue: 0 };
+  const nav = player.kind === 'tank' && activeTank && activeTank.naval;
+  return { red: nav ? 3 + Math.min(2, Math.floor(prog.totalKills / 25)) : 2, blue: nav ? 2 + Math.min(1, Math.floor(prog.totalKills / 40)) : 2 };
+}
+function navalCount(team) { let n = 0; for (const e of enemies) if (e.alive && e.naval && e.team === team) n++; return n; }
+function updateEnemyShip(e, dt) {
+  const foe = e.team === 'blue' ? 'red' : 'blue';
+  let tgt = null, bd = 1e12;
+  const consider = (pos, vel, naval, isPlayer) => { const d = (pos.x - e.position.x) ** 2 + (pos.z - e.position.z) ** 2; if (d < bd) { bd = d; tgt = { pos, vel, naval, isPlayer }; } };
+  if (e.team === 'red' && player.alive) consider(player.position, player.velocity, !!(activeTank && activeTank.naval && player.kind === 'tank'), true);
+  for (const o of enemies) if (o.alive && o.team === foe) consider(o.position, o.velocity, !!o.naval, false);
+  const dist = Math.sqrt(bd), RANGE = 1000;
+  let goalX, goalZ, mode = 'patrol';
+  const hurtS = e.health < e.maxHealth * 0.3 && fleetZone(e.team);
+  e.losT = (e.losT || 0) - dt;
+  if (tgt && e.losT <= 0) { e.losT = 0.4; e.los = losClear(e.position.x, e.position.y + e.ship.muzzleY, e.position.z, tgt.pos.x, (tgt.pos.y || 0) + 3, tgt.pos.z); }
+  if (hurtS) {                                                   // badly hurt: fall back to the home anchorage and repair
+    const z0 = fleetZone(e.team)[0]; goalX = z0[0]; goalZ = z0[1];
+    if (Math.hypot(goalX - e.position.x, goalZ - e.position.z) < 260) e.health = Math.min(e.maxHealth, e.health + e.maxHealth * 0.02 * dt);
+  } else if (tgt && dist < RANGE * 1.5) {
+    mode = 'engage'; goalX = tgt.pos.x; goalZ = tgt.pos.z;
+  } else {
+    const caps = captPoints.filter(c => c.owner !== e.team);
+    let c = null, cd = 1e12; for (const q of caps) { const d = (q.x - e.position.x) ** 2 + (q.z - e.position.z) ** 2; if (d < cd) { cd = d; c = q; } }
+    if (c) { goalX = c.x; goalZ = c.z; } else { goalX = 0; goalZ = 0; }
+  }
+  const dx = goalX - e.position.x, dz = goalZ - e.position.z, gl = Math.hypot(dx, dz) || 1;
+  let vx = dx / gl, vz = dz / gl, sp = e.stats.speed;
+  if (mode === 'engage') {
+    if (!e.los && dist > 450) { /* no shot: keep closing / flanking */ }
+    else if (dist < 380) { vx = -vx; vz = -vz; sp *= 0.5; }
+    else if (dist < 620) { const t0 = vx; vx = -vz * e.circleDir; vz = t0 * e.circleDir; sp *= 0.55; }
+  }
+  const dv = e.velocity;
+  dv.x += (vx * sp - dv.x) * Math.min(1, dt * 0.7); dv.z += (vz * sp - dv.z) * Math.min(1, dt * 0.7);
+  const px = e.position.x, pz = e.position.z;
+  let nx = px + dv.x * dt, nz = pz + dv.z * dt;
+  if (!navalOK(nx, nz)) {
+    if (navalOK(nx, pz)) nz = pz; else if (navalOK(px, nz)) nx = px; else { nx = px; nz = pz; e.circleDir *= -1; dv.multiplyScalar(0.3); }
+  }
+  e.position.set(nx, seaLevel(), nz);
+  const spd = Math.hypot(dv.x, dv.z);
+  if (spd > 1) {
+    const want = Math.atan2(-dv.x, -dv.z); let dy = want - e.hullYaw;
+    while (dy > Math.PI) dy -= Math.PI * 2; while (dy < -Math.PI) dy += Math.PI * 2;
+    const maxT = (0.15 + 0.3 * Math.min(1, spd / e.stats.speed)) * dt;
+    e.hullYaw += Math.max(-maxT, Math.min(maxT, dy));
+  }
+  // gunnery
+  const fwdX = -Math.sin(e.hullYaw), fwdZ = -Math.cos(e.hullYaw), sh = e.ship;
+  if (tgt) {
+    const tt = dist / e.stats.shellSpeed;
+    const ax = tgt.pos.x + (tgt.vel ? tgt.vel.x * tt : 0) - e.position.x, az = tgt.pos.z + (tgt.vel ? tgt.vel.z * tt : 0) - e.position.z;
+    const worldYaw = Math.atan2(-ax, -az);
+    let dT = worldYaw - e.hullYaw - e.turretYaw;
+    while (dT > Math.PI) dT -= Math.PI * 2; while (dT < -Math.PI) dT += Math.PI * 2;
+    e.turretYaw += Math.max(-1, Math.min(1, dT)) * Math.min(Math.abs(dT), 1.1 * dt * 1.2);
+    const g = PHYS.gravity * 3.0, v = e.stats.shellSpeed, hd = Math.hypot(ax, az);
+    const want = 0.5 * Math.asin(Math.min(1, hd * g / (v * v))) + Math.atan2((tgt.pos.y || 0) - (e.position.y + sh.muzzleY), Math.max(1, hd));
+    e.turretPitch += (Math.max(-0.05, Math.min(0.5, want)) - e.turretPitch) * Math.min(1, dt * 2);
+    e.fireCd -= dt; e.torpCd -= dt;
+    if (dist < RANGE && e.los && e.fireCd <= 0 && Math.abs(dT) < 0.12) {
+      e.fireCd = e.stats.fireCd + Math.random() * 0.8;
+      const dir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(1, 0, 0), e.turretPitch).applyAxisAngle(new THREE.Vector3(0, 1, 0), e.hullYaw + e.turretYaw);
+      dir.x += (Math.random() - 0.5) * 0.014; dir.z += (Math.random() - 0.5) * 0.014; dir.normalize();
+      const muzzle = new THREE.Vector3(e.position.x - fwdX * sh.turretZ, e.position.y + sh.muzzleY, e.position.z - fwdZ * sh.turretZ).addScaledVector(dir, sh.muzzleFwd);
+      fireShell(muzzle, dir.clone().multiplyScalar(e.stats.shellSpeed), false, e.stats.damage, 18, e.team);
+      spawnExplosion(muzzle, 2.4, 0xffd8a0);
+    }
+    if (e.stats.torp && tgt.naval && dist > 250 && dist < 900 && e.torpCd <= 0) {
+      e.torpCd = 14 + Math.random() * 8;
+      const td = new THREE.Vector3(ax, 0, az).normalize();
+      fireTorpedo(new THREE.Vector3(e.position.x + td.x * 14, 0, e.position.z + td.z * 14), td, e.stats.torp, e.team, false);
+    }
+  }
+  shipWake(e.position, e.hullYaw, spd, sh, dt, e.wakeH);
+  e.mesh.position.copy(e.position); shipSway(e.mesh, e.position, e.hullYaw, spd, e.stats.speed);
+  if (e.mesh.userData.turret) e.mesh.userData.turret.rotation.y = e.turretYaw;
+  if (e.mesh.userData.barrel) e.mesh.userData.barrel.rotation.x = e.turretPitch;
+}
+
 function createTankMesh(tank, skin, opt = {}) {
   const bodyC = (skin && skin.body != null) ? skin.body : tank.colors.body;
   const accentC = (skin && skin.accent != null) ? skin.accent : tank.colors.accent;
   const colors = { body: bodyC, accent: accentC };
+  if (tank.naval) return buildShipByKind(tank.mesh, colors, opt);
   switch (tank.id) {
     case 'mark4': return buildWWITank(colors, opt);
     case 'sherman': return buildWWIITank(colors, opt);
@@ -2117,6 +2482,7 @@ function applyCurrentVehicle() {
     player.maxHealth = S.health;
     if (playerMesh) { scene.remove(playerMesh); disposeMesh(playerMesh); }
     playerMesh = createTankMesh(activeTank, activeSkin);
+    applyDecals(playerMesh, 'tank');
     scene.add(playerMesh);
     playerMesh.position.copy(player.position);
     playerMesh.quaternion.copy(player.quaternion);
@@ -2130,6 +2496,7 @@ function applyCurrentVehicle() {
     player.maxHealth = S.health;
     if (playerMesh) { scene.remove(playerMesh); disposeMesh(playerMesh); }
     playerMesh = createAircraftMesh(activePlane, activeSkin);
+    applyDecals(playerMesh, 'plane');
     scene.add(playerMesh);
     playerMesh.position.copy(player.position);
     playerMesh.quaternion.copy(player.quaternion);
@@ -2287,18 +2654,138 @@ const MAPS = [
     town: 'industrial', runway: true,
     caps: [[-430, -190], [0, 60], [430, -200]] }
 ];
+/* ============================================================
+   WATER · coastal maps and rivers/lakes/fjords on existing maps
+   sea  = water surface height.  Raw terrain below it is seabed.
+   ============================================================ */
+// ---- rivers / lakes / fjords on existing maps ----
+Object.assign(MAPS.find(m => m.id === 'rhine'), {
+  sea: -1.6, beach: [0.72, 0.66, 0.5], bedShallow: [0.42, 0.46, 0.32], bedDeep: [0.1, 0.14, 0.1],
+  water: { col: 0x3f6a5c, alpha: 0.86, wave: 0.5 },
+  carve(x, z, h) {
+    const xc = 640 * Math.sin(z / 1500 + 0.9) + 140 * Math.sin(z / 420 + 2.0);
+    const t = 1 - ss(Math.abs(x - xc), 38, 105);
+    if (t <= 0) return h;
+    const ford = ss(Math.sin(z / 560 + 0.2), 0.80, 0.93);          // shallow crossings tanks can drive over
+    return h * (1 - t) + (-9 + 6.8 * ford) * t;
+  }
+});
+Object.assign(MAPS.find(m => m.id === 'tundra'), {
+  sea: -2.5, beach: [0.86, 0.9, 0.94], bedShallow: [0.52, 0.64, 0.7], bedDeep: [0.03, 0.12, 0.17],
+  water: { col: 0x12435c, alpha: 0.88, wave: 0.7 },
+  carve(x, z, h) {
+    const cx = 1250 + 420 * Math.sin(z / 900 + 0.5) + 160 * Math.sin(z / 260);
+    const d = x - cx, t = ss(d, -120, 60);
+    if (t <= 0) return h;
+    return h * (1 - t) + (-4 - Math.min(80, Math.max(0, d) * 0.16)) * t;
+  },
+  fleet: { blue: [[2300, -1000], [2500, -400]], red: [[2300, 1000], [2500, 400]] }
+});
+Object.assign(MAPS.find(m => m.id === 'alps'), {
+  sea: -2, beach: [0.62, 0.58, 0.5], bedShallow: [0.32, 0.5, 0.48], bedDeep: [0.02, 0.14, 0.2],
+  water: { col: 0x0d5a70, alpha: 0.86, wave: 0.35 },
+  carve(x, z, h) {
+    const d = Math.hypot((x - 1550) / 950, (z + 700) / 560), t = 1 - ss(d, 0.5, 1.05);
+    return t <= 0 ? h : h * (1 - t) + -38 * t;
+  },
+  fleet: { blue: [[1250, -820], [1500, -940]], red: [[1650, -450], [1950, -600]] }
+});
+
+// ---- new coastal maps ----
+const _isl = (x, z, cx, cz, r, so, seed) => {
+  const dd = Math.hypot(x - cx, z - cz) + (fbm2(x / 420 + so, z / 420, 3, seed) - 0.5) * 300;
+  return 1 - ss(dd / r, 0.7, 1.0);
+};
+MAPS.push({
+  id: 'isles', name: 'Coral Isles', tag: 'Tropical · Midday',
+  desc: 'A jungle island ringed by white beaches and turquoise shallows. The sea belongs to the fleets, the shore to the tanks.',
+  seed: 101, flatR: 600, flatR2: 1200, fullHeight: true, ground: 'grass', groundRep: 240,
+  sea: -3, beach: [0.95, 0.88, 0.66], bedShallow: [0.45, 0.82, 0.78], bedDeep: [0.01, 0.2, 0.34],
+  water: { col: 0x0a78a6, alpha: 0.82, wave: 0.55 },
+  height(x, z) {
+    const sd = this.seed;
+    let s = _isl(x, z, 0, 0, 1750, 0.0, sd);
+    for (const [cx, cz, r, so] of [[-2900, 1100, 500, 1.3], [2600, -1500, 620, 2.1], [1800, 2700, 450, 3.7], [-2000, -2700, 560, 4.2], [3300, 1700, 330, 5.5], [-3500, -900, 260, 6.1], [900, -3000, 220, 7.3]])
+      s = Math.max(s, _isl(x, z, cx, cz, r, so, sd));
+    let h;
+    if (s < 0.3) h = -60 + 57 * Math.pow(ss(s, 0, 0.3), 0.8);
+    else { const hills = fbm2(x / 520, z / 520, 4, sd + 5); h = -3 + (s - 0.3) / 0.7 * (6 + hills * 70 * ss(s, 0.5, 1)); }
+    const flat = 1 - ss(Math.hypot(x, z), 350, 800);
+    return h * (1 - flat) + 4 * flat;
+  },
+  colour(x, z, h, sl) { const a = vnoise(x / 300, z / 300, 31); return [0.8 + a * 0.12, 1.0, 0.66 + a * 0.1]; },
+  sky: { top: 0x1f86dc, hor: 0xbfe6f6, fog: 0xc6e8f4, near: 1500, far: 10000, hemiS: 0xe4f4ff, hemiG: 0x5a8a50, hemiI: 1.0, sun: 0xfff4dc, sunI: 1.6, sunDir: [300, 800, 200], cloud: 0.32, cloudCol: 0xffffff, cloudY: 2100 },
+  props: [
+    { type: 'palm', count: 1500, cluster: 0.45, cs: 500, rMax: 4200, maxSlope: 0.5, hMax: 90, cols: [0x3f8a3a, 0x4a9a40, 0x357a34], scale: [0.9, 1.5] },
+    { type: 'broad', count: 1300, cluster: 0.55, cs: 650, rMax: 4200, maxSlope: 0.5, hMax: 150, cols: [0x2f7a2c, 0x3a8a34, 0x286a28], scale: [0.9, 1.7] },
+    { type: 'rock', count: 160, rMax: 4800, cols: [0x8a867c, 0x7a766c], scale: [0.8, 3.0] }],
+  town: 'island', runway: true,
+  caps: [[-520, -280], [0, 100], [560, -260]],
+  fleet: { blue: [[-3000, -300], [-3200, 400]], red: [[3000, 400], [3200, -300]] }
+});
+MAPS.push({
+  id: 'harbour', name: 'Dawn Harbour', tag: 'Coastal · Dawn',
+  desc: 'A fortified harbour at first light. Warehouses, cranes and piers, with destroyers shelling the quays from the bay.',
+  seed: 131, flatR: 600, flatR2: 1200, fullHeight: true, ground: 'grass', groundRep: 240,
+  sea: -3, beach: [0.7, 0.66, 0.58], bedShallow: [0.38, 0.5, 0.48], bedDeep: [0.02, 0.12, 0.16],
+  water: { col: 0x2a5a66, alpha: 0.86, wave: 0.45 },
+  coastX(z) {
+    const bay = Math.exp(-Math.pow((z + 160) / 300, 2));
+    return -1500 + 420 * Math.sin(z / 900 + 0.3) + 180 * Math.sin(z / 310) + bay * 900;
+  },
+  height(x, z) {
+    const dd = x - this.coastX(z) + (fbm2(x / 380, z / 380, 3, this.seed) - 0.5) * 120;
+    let h;
+    if (dd < 0) h = -3 + Math.max(-70, dd * 0.14);
+    else {
+      const hills = fbm2(x / 700, z / 700, 4, this.seed + 4);
+      h = -3 + Math.min(dd * 0.05, 9) + hills * 120 * ss(dd, 500, 2400);
+    }
+    // offshore islet
+    const si = _isl(x, z, -3300, -1000, 480, 2.2, this.seed);
+    if (si > 0.3) h = Math.max(h, -3 + (si - 0.3) / 0.7 * 26);
+    const flat = 1 - ss(Math.hypot(x, z), 350, 800);
+    return h * (1 - flat) + 3 * flat;
+  },
+  colour(x, z, h, sl) { const a = vnoise(x / 260, z / 260, 33); return [0.78 + a * 0.12, 0.84 + a * 0.08, 0.7 + a * 0.1]; },
+  sky: { top: 0x536f92, hor: 0xf0cfaa, fog: 0xcbc3bb, near: 700, far: 7500, hemiS: 0xe8d2bc, hemiG: 0x4a5444, hemiI: 0.9, sun: 0xffc690, sunI: 1.25, sunDir: [-900, 260, 200], cloud: 0.5, cloudCol: 0xf5d8c4, cloudY: 1700 },
+  props: [
+    { type: 'conifer', count: 900, cluster: 0.55, cs: 700, rMax: 4200, maxSlope: 0.5, hMax: 200, cols: [0x2f5a2e, 0x2a4f2a], scale: [0.8, 1.5] },
+    { type: 'scrub', count: 700, cluster: 0.5, cs: 500, rMax: 4200, maxSlope: 0.55, hMax: 160, cols: [0x5a6a3a, 0x4a5a30], scale: [0.7, 1.4] },
+    { type: 'rock', count: 300, rMax: 4800, cols: [0x6e6c68, 0x5e5c58], scale: [0.9, 3.4] }],
+  town: 'harbour', runway: true,
+  caps: [[-420, -180], [20, 100], [430, -170]],
+  fleet: { blue: [[-2700, -1200], [-2900, -400]], red: [[-2700, 1100], [-2900, 400]] }
+});
+
 let currentMap = MAPS[0];
 let mapChoice = 'random';
 try { mapChoice = localStorage.getItem('f31_map') || 'random'; } catch (e) {}
 function getMap(id) { return MAPS.find(m => m.id === id) || MAPS[0]; }
 
 /* ---------- terrain queries ---------- */
-function terrainHeightAt(wx, wz) {
+/** Raw terrain including the seabed (used for the mesh and for water depth). */
+function terrainRawAt(wx, wz) {
   const m = currentMap;
   if (!m) return 0;
-  const mask = THREE.MathUtils.smoothstep(Math.hypot(wx, wz), m.flatR, m.flatR2);
-  return mask > 0 ? m.height(wx, wz) * mask : 0;
+  let h;
+  if (m.fullHeight) h = m.height(wx, wz);
+  else { const mask = THREE.MathUtils.smoothstep(Math.hypot(wx, wz), m.flatR, m.flatR2); h = mask > 0 ? m.height(wx, wz) * mask : 0; }
+  return m.carve ? m.carve(wx, wz, h) : h;
 }
+/** Solid surface height: the water surface counts as ground for aircraft, shells and bombs. */
+function terrainHeightAt(wx, wz) {
+  const h = terrainRawAt(wx, wz), s = currentMap && currentMap.sea;
+  return s != null && h < s ? s : h;
+}
+/** Metres of water above the seabed (0 on land). */
+function waterDepthAt(wx, wz) {
+  const s = currentMap && currentMap.sea;
+  if (s == null) return 0;
+  const h = terrainRawAt(wx, wz);
+  return h < s ? s - h : 0;
+}
+const seaLevel = () => (currentMap && currentMap.sea != null ? currentMap.sea : -1e9);
 function terrainSlopeAt(wx, wz) {
   const e = 12, hx = terrainHeightAt(wx + e, wz) - terrainHeightAt(wx - e, wz), hz = terrainHeightAt(wx, wz + e) - terrainHeightAt(wx, wz - e);
   return Math.hypot(hx, hz) / (2 * e);
@@ -2389,7 +2876,44 @@ function applyAtmosphere(m) {
   cloudTex.repeat.set(5, 5);
   cloudPlane.material.map = cloudTex; cloudPlane.material.needsUpdate = true;
 }
+let waterMesh = null, waterNormTex = null, terrainShader = null;
+function makeWaterNormal() {
+  const n = 256, c = document.createElement('canvas'); c.width = c.height = n;
+  const g = c.getContext('2d'), im = g.createImageData(n, n);
+  const W = [[3, 1, 0.9, 0.4], [-2, 4, 0.6, 1.7], [5, -3, 0.35, 2.9], [1, 7, 0.22, 0.8], [-6, -5, 0.16, 4.1], [9, 2, 0.1, 5.3]];
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    let dx = 0, dy = 0;
+    for (const [kx, ky, a, ph] of W) { const t = (kx * x + ky * y) / n * 6.2832 + ph, d = Math.cos(t) * a * 6.2832 / n; dx += d * kx; dy += d * ky; }
+    const nx = -dx * 5, ny = -dy * 5, l = Math.hypot(nx, ny, 1), i = (y * n + x) * 4;
+    im.data[i] = (nx / l * 0.5 + 0.5) * 255; im.data[i + 1] = (ny / l * 0.5 + 0.5) * 255; im.data[i + 2] = (1 / l * 0.5 + 0.5) * 255; im.data[i + 3] = 255;
+  }
+  g.putImageData(im, 0, 0);
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(1700, 1700);
+  return t;
+}
+function buildWater(m) {
+  if (m.sea == null) { if (waterMesh) waterMesh.visible = false; return; }
+  if (!waterNormTex) waterNormTex = makeWaterNormal();
+  if (!waterMesh) {
+    const mat = new THREE.MeshPhongMaterial({ color: 0x2a6a80, transparent: true, opacity: 0.85, shininess: 140, specular: 0xbbccdd, normalMap: waterNormTex, normalScale: new THREE.Vector2(0.5, 0.5) });
+    waterMesh = new THREE.Mesh(new THREE.PlaneGeometry(40000, 40000), mat);
+    waterMesh.rotation.x = -Math.PI / 2; waterMesh.renderOrder = 2;
+    scene.add(waterMesh);
+  }
+  const w = m.water || {};
+  waterMesh.material.color.setHex(w.col != null ? w.col : 0x2a6a80);
+  waterMesh.material.opacity = w.alpha != null ? w.alpha : 0.85;
+  waterMesh.material.normalScale.set(w.wave || 0.5, w.wave || 0.5);
+  waterMesh.position.y = m.sea;
+  waterMesh.visible = true;
+}
 function updateSky(dt) {
+  updateWakes(dt);
+  if (waterMesh && waterMesh.visible) {
+    const t = performance.now() * 0.001;
+    waterNormTex.offset.set(t * 0.09, t * 0.055);
+    if (terrainShader) terrainShader.uniforms.uTime.value = t;
+  }
   if (!skyDome) return;
   skyDome.position.copy(camera.position);
   cloudPlane.position.x = camera.position.x; cloudPlane.position.z = camera.position.z;
@@ -2407,7 +2931,7 @@ function buildTerrain(m) {
   const pos = geo.attributes.position, n = pos.count;
   const col = new Float32Array(n * 3), splat = new Float32Array(n * 2);
   for (let i = 0; i < n; i++) {
-    const x = pos.getX(i), z = pos.getZ(i), h = terrainHeightAt(x, z);
+    const x = pos.getX(i), z = pos.getZ(i), h = terrainRawAt(x, z);
     pos.setY(i, h);
   }
   geo.computeVertexNormals();
@@ -2415,38 +2939,60 @@ function buildTerrain(m) {
   for (let i = 0; i < n; i++) {
     const x = pos.getX(i), z = pos.getZ(i), h = pos.getY(i), sl = Math.sqrt(1 - Math.min(1, nor.getY(i) * nor.getY(i))) / Math.max(0.2, nor.getY(i));
     const c = m.colour(x, z, h, sl);
+    let rock = ss(sl, 0.45, 0.9), snow = 0, shore = 0;
+    if (m.sea != null) {                          // seabed, wet sand and beach tints (rock texture reads as sand under the tint)
+      const d = m.sea - h;
+      if (d > 0) { const t = ss(d, 0, 16), a = m.bedShallow, b = m.bedDeep; c[0] = a[0] + (b[0] - a[0]) * t; c[1] = a[1] + (b[1] - a[1]) * t; c[2] = a[2] + (b[2] - a[2]) * t; shore = 1; }
+      else { const bm = 1 - ss(-d, 0.5, 2.8) * 0.0; const k = (1 - ss(-d, 0.4, 3.0 + Math.max(0, 1 - sl * 3) * 2.0)) * (1 - ss(sl, 0.3, 0.7)); if (k > 0) { const be = m.beach; c[0] += (be[0] - c[0]) * k; c[1] += (be[1] - c[1]) * k; c[2] += (be[2] - c[2]) * k; shore = Math.max(shore, k); } }
+    }
     col[i * 3] = c[0]; col[i * 3 + 1] = c[1]; col[i * 3 + 2] = c[2];
-    let rock = ss(sl, 0.45, 0.9), snow = 0;
     if (m.splat) {
       snow = ss(h + (vnoise(x / 90, z / 90, 4) - 0.5) * 60, 330, 420) * (1 - ss(sl, 0.9, 1.5));
       rock = Math.max(rock, ss(h, 170, 300) * 0.9);
     }
     splat[i * 2] = rock * (1 - snow); splat[i * 2 + 1] = snow;
     if (!m.splat) { splat[i * 2] = rock * 0.85; splat[i * 2 + 1] = 0; }
+    if (shore > 0) { splat[i * 2] = Math.max(splat[i * 2], Math.min(1, shore * 1.3)); splat[i * 2 + 1] = 0; }
   }
   geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
   geo.setAttribute('aSplat', new THREE.BufferAttribute(splat, 2));
   const mat = matFromSlot(m.ground, TEX.maps[m.ground] ? 0xffffff : (m.fb || 0x4a6a30), { metalness: 0, roughness: 1, normalScale: 1.1 });
   mat.vertexColors = true;
   const rockT = TEX.maps.rock, snowT = TEX.maps.snow;
-  if (rockT && snowT && mat.map) {
+  const doSplat = !!(rockT && snowT && mat.map), doSea = m.sea != null;
+  terrainShader = null;
+  if (doSplat || doSea) {
     mat.onBeforeCompile = (sh) => {
-      sh.uniforms.tRock = { value: rockT }; sh.uniforms.tSnow = { value: snowT };
+      sh.uniforms.uSea = { value: doSea ? m.sea : -1e9 }; sh.uniforms.uTime = { value: 0 };
+      if (doSplat) { sh.uniforms.tRock = { value: rockT }; sh.uniforms.tSnow = { value: snowT }; }
       sh.vertexShader = sh.vertexShader
-        .replace('#include <common>', '#include <common>\nattribute vec2 aSplat;\nvarying vec2 vSplat;')
-        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvSplat = aSplat;');
+        .replace('#include <common>', '#include <common>\nattribute vec2 aSplat;\nvarying vec2 vSplat;\nvarying vec3 vWP;')
+        .replace('#include <begin_vertex>', '#include <begin_vertex>\nvSplat = aSplat; vWP = position;');
       sh.fragmentShader = sh.fragmentShader
-        .replace('#include <common>', '#include <common>\nuniform sampler2D tRock;\nuniform sampler2D tSnow;\nvarying vec2 vSplat;')
-        .replace('#include <map_fragment>', `
+        .replace('#include <common>', '#include <common>\nuniform sampler2D tRock;\nuniform sampler2D tSnow;\nuniform float uSea;\nuniform float uTime;\nvarying vec2 vSplat;\nvarying vec3 vWP;');
+      if (doSplat) sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>', `
           #ifdef USE_MAP
             vec4 sampledDiffuseColor = mix(mix(texture2D(map, vMapUv), texture2D(tRock, vMapUv * 0.75), vSplat.x), texture2D(tSnow, vMapUv * 0.9), vSplat.y);
             diffuseColor *= sampledDiffuseColor;
           #endif`);
+      if (doSea) {
+        sh.fragmentShader = sh.fragmentShader
+          .replace('#include <color_fragment>', `#include <color_fragment>
+          float seaD = vWP.y - uSea;
+          diffuseColor.rgb *= mix(0.7, 1.0, smoothstep(0.0, 1.3, seaD)) * (seaD < 0.0 ? 1.0 : 1.0);`)
+          .replace('#include <dithering_fragment>', `#include <dithering_fragment>
+          { float wob = sin(vWP.x * 0.09 + uTime * 0.8) * 0.5 + sin(vWP.z * 0.12 - uTime * 0.65) * 0.5;
+            float ed = seaD - 0.22 - wob * 0.16;
+            float foam = (1.0 - smoothstep(0.0, 0.5, abs(ed))) * 0.7 + (1.0 - smoothstep(0.0, 1.4, abs(seaD + 0.6))) * 0.12;
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, vec3(0.96, 0.98, 1.0), clamp(foam, 0.0, 0.85)); }`);
+      }
+      terrainShader = sh;
     };
-    mat.customProgramCacheKey = () => 'splat';
+    mat.customProgramCacheKey = () => 'terr' + (doSplat ? 's' : '') + (doSea ? 'w' : '');
   }
   ground = new THREE.Mesh(geo, mat);
   scene.add(ground);
+  buildWater(m);
 }
 
 /* ---------- props (instanced) ---------- */
@@ -2477,6 +3023,17 @@ function broadGeos() {
   cr.add(new THREE.IcosahedronGeometry(2.3, 1), 'x', [1.6, 5.4, 0.8]); cr.add(new THREE.IcosahedronGeometry(2.1, 1), 'x', [-1.5, 5.6, -0.7]);
   return [mergeGeos(tr.m.x), mergeGeos(cr.m.x)];
 }
+function palmGeos() {
+  const tr = new Batch(), cr = new Batch();
+  let px = 0;
+  for (let i = 0; i < 5; i++) { const y0 = i * 1.7, lean = 0.16 * i * i * 0.25; tr.cylY(0.3 - i * 0.03, 0.34 - i * 0.03, 1.8, 'x', lean * 0.5, y0 + 0.9, 0, 6); px = lean * 0.5; }
+  for (let k = 0; k < 8; k++) {
+    const g = new THREE.BoxGeometry(0.9, 0.09, 4.4); g.translate(0, 0, 2.2); g.rotateX(0.35 + (k % 2) * 0.3); g.rotateY(k * Math.PI / 4 + 0.2);
+    cr.add(g, 'x', [px, 8.7, 0]);
+  }
+  cr.sph(0.45, 'x', px, 8.5, 0);
+  return [mergeGeos(tr.m.x), mergeGeos(cr.m.x)];
+}
 function rockGeo(seed) {
   const g = new THREE.IcosahedronGeometry(1, 1), p = g.attributes.position;
   for (let i = 0; i < p.count; i++) {
@@ -2496,14 +3053,15 @@ function scatterProps(m, rng, avoid) {
       const a = rng() * Math.PI * 2, r = rMin + Math.sqrt(rng()) * (rMax - rMin), x = Math.cos(a) * r, z = Math.sin(a) * r;
       if (def.cluster && fbm2(x / def.cs, z / def.cs, 3, m.seed + 99 + def.count) < def.cluster) continue;
       const h = terrainHeightAt(x, z);
+      if (m.sea != null && h < m.sea + (def.type === 'rock' ? 0.3 : 1.0)) continue;
       if (def.hMax != null && h > def.hMax) continue;
       if (def.maxSlope != null && terrainSlopeAt(x, z) > def.maxSlope) continue;
       if (avoid(x, z, def.type === 'rock' ? 6 : 10)) continue;
       pts.push({ x, z, y: h });
     }
     const colAt = (p, i) => _ic.setHex(def.cols[Math.floor(hash2(i, 3, 5) * def.cols.length) % def.cols.length]).multiplyScalar(0.85 + hash2(i, 9, 2) * 0.3);
-    if (def.type === 'conifer' || def.type === 'broad') {
-      const [tg, cg] = def.type === 'conifer' ? conifGeos() : broadGeos();
+    if (def.type === 'conifer' || def.type === 'broad' || def.type === 'palm') {
+      const [tg, cg] = def.type === 'conifer' ? conifGeos() : def.type === 'palm' ? palmGeos() : broadGeos();
       const L = pts.map((p, i) => { const s = def.scale[0] + rng() * (def.scale[1] - def.scale[0]); return { x: p.x, y: p.y - 0.3, z: p.z, rot: rng() * 6.28, sx: s, sy: s * (0.9 + rng() * 0.3), sz: s }; });
       instanced(tg, trunkMat, L, null); instanced(cg, leafMat, L, colAt);
     } else if (def.type === 'rock') {
@@ -2577,10 +3135,42 @@ function addTank(x, z, r, h, col) {
   buildings.push({ mesh: t, position: t.position.clone(), radius: r + 1.5, height: h, health: 90, destroyed: false, strips: [], extras: [cap] });
 }
 
+/** Walk outward from the map centre (or a given point) until the land ends; returns the last dry spot. */
+function findCoast(ang, rMax, ox = 0, oz = 0) {
+  const m = currentMap; let last = null;
+  for (let r = 0; r < rMax; r += 20) { const x = ox + Math.cos(ang) * r, z = oz + Math.sin(ang) * r, h = terrainHeightAt(x, z); if (h > m.sea + 2.2) last = [x, z]; else if (last) break; }
+  return last;
+}
+function addLighthouse(x, z) {
+  const gy = terrainHeightAt(x, z);
+  const tw = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 3.6, 30, 14), plainMat(0xf0f0ec, 0.0, 0.8)); tw.position.set(x, gy + 15, z); scene.add(tw);
+  const band = new THREE.Mesh(new THREE.CylinderGeometry(2.9, 3.2, 5, 14), plainMat(0xb02a22, 0.0, 0.8)); band.position.set(x, gy + 11, z); scene.add(band);
+  const lamp = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, 3.4, 12), new THREE.MeshStandardMaterial({ color: 0xffe9a0, emissive: 0xffd070, emissiveIntensity: 0.9, roughness: 0.3 })); lamp.position.set(x, gy + 31.7, z); scene.add(lamp);
+  const cap = new THREE.Mesh(new THREE.ConeGeometry(3.2, 3.2, 12), plainMat(0x30343a, 0.2, 0.7)); cap.position.set(x, gy + 35, z); scene.add(cap);
+  buildings.push({ mesh: tw, position: new THREE.Vector3(x, gy + 15, z), radius: 4.5, height: 33, health: 160, destroyed: false, strips: [], extras: [band, lamp, cap] });
+}
+function addCrane(x, z, h) {
+  const gy = terrainHeightAt(x, z), M = plainMat(0xc25a2a, 0.3, 0.7);
+  const g = new THREE.Group();
+  const b = new Batch();
+  b.box(1.4, h, 1.4, 'x', -3, h / 2, -3); b.box(1.4, h, 1.4, 'x', 3, h / 2, -3); b.box(1.4, h, 1.4, 'x', -3, h / 2, 3); b.box(1.4, h, 1.4, 'x', 3, h / 2, 3);
+  b.box(9, 6, 9, 'x', 0, h + 3, 0); b.box(2.4, 2.4, 52, 'x', 0, h + 7, -16); b.box(2.4, 8, 2.4, 'x', 0, h + 11, 12);
+  const body = b.build({ x: M }); body.position.set(x, gy, z); body.rotation.y = (x * 0.013) % 6.28; scene.add(body);
+  const hit = new THREE.Mesh(new THREE.BoxGeometry(9, h, 9), new THREE.MeshBasicMaterial({ visible: false })); hit.position.set(x, gy + h / 2, z); scene.add(hit);
+  buildings.push({ mesh: hit, position: hit.position.clone(), radius: 8, height: h + 8, health: 150, destroyed: false, strips: [], extras: [body] });
+}
+function addPier(x, z, len) {
+  const sea = currentMap.sea, M = plainMat(0x6a5a48, 0.0, 0.95);
+  const deck = new THREE.Mesh(new THREE.BoxGeometry(len, 0.6, 9), M); deck.position.set(x - len / 2, sea + 1.1, z); scene.add(deck); trackObj(deck);
+  const b = new Batch();
+  for (let i = 0; i <= len; i += 14) { b.cylY(0.35, 0.35, 5, 'x', x - i, sea - 1.0, z - 4); b.cylY(0.35, 0.35, 5, 'x', x - i, sea - 1.0, z + 4); }
+  const posts = b.build({ x: plainMat(0x3a3028, 0, 0.9) }); scene.add(posts); trackObj(posts);
+}
 function genTown(m, rng, taken, farFromCaps) {
   const place = (x, z, w, h, d, o) => {
     if (Math.abs(x) < 95 && Math.abs(z) < 540 && m.runway) return null;
     if (farFromCaps(x, z, 85 + Math.max(w, d) * 0.5)) return null;
+    if (m.sea != null) { const hw = Math.max(w, d) * 0.55 + 4; for (const [ox, oz] of [[0, 0], [hw, 0], [-hw, 0], [0, hw], [0, -hw]]) if (terrainHeightAt(x + ox, z + oz) < m.sea + 1.0) return null; }
     for (const t of taken) if (Math.hypot(t.x - x, t.z - z) < t.r + Math.max(w, d) * 0.7) return null;
     taken.push({ x, z, r: Math.max(w, d) * 0.7 });
     return spawnBuilding(x, z, w, h, d, o);
@@ -2618,6 +3208,23 @@ function genTown(m, rng, taken, farFromCaps) {
         cluster(cx, cz, n, 160, (x, z) => place(x, z, R(8, 12), R(5, 7), R(9, 13), { slot: 'wood', col: 0xd0a878, roof: 'gable', roofCol: 0x6a4a36, roofH: 4.6, rot: Math.round(rng()) * Math.PI / 2 }));
       place(-60, -760, 14, 12, 22, { slot: 'plaster', roof: 'gable', roofCol: 0x6a4a36, roofH: 6 });
       break;
+    case 'island': {
+      for (const [cx, cz, n] of [[-760, -520, 12], [700, 520, 12], [-250, 880, 10], [980, -140, 9]])
+        cluster(cx, cz, n, 150, (x, z) => place(x, z, R(7, 10), R(4, 5.5), R(8, 12), { slot: 'wood', col: 0xd8c098, roof: 'gable', roofCol: 0x9a7a44, roofH: 3.6, rot: Math.round(rng()) * Math.PI / 2 }));
+      cluster(0, 0, 24, 3600, (x, z) => { if (Math.hypot(x, z) > 700) place(x, z, R(7, 10), R(4, 5.5), R(8, 12), { slot: 'wood', col: 0xd8c098, roof: 'gable', roofCol: 0x9a7a44, roofH: 3.4, rot: rng() * 6.28 }); });
+      for (const a0 of [0.6, 2.2, 3.8, 5.3]) { const p = findCoast(a0, 6000); if (p) addLighthouse(p[0], p[1]); if (a0 > 3) break; }
+      break; }
+    case 'harbour': {
+      for (let z = -760; z <= 560; z += 110) {
+        const cx = m.coastX(z);
+        place(cx + R(70, 120), z + R(-20, 20), R(34, 56), R(9, 14), R(24, 34), { slot: 'building', col: 0xc8c8c8, roof: 'flat', slabCol: 0x4a4846 });
+        if (rng() < 0.8) place(cx + R(190, 260), z + R(-30, 30), R(20, 34), R(8, 16), R(20, 30), { slot: rng() < 0.5 ? 'brick' : 'building', col: 0xdddddd, roof: 'flat', slabCol: 0x3a3836 });
+        if (rng() < 0.5) addCrane(cx + 24, z + R(-20, 20), R(34, 46));
+        if (rng() < 0.45) addPier(cx + 6, z + R(-15, 15), R(110, 190));
+      }
+      cluster(-50, 40, 30, 2400, (x, z) => { if (Math.hypot(x, z) > 600) place(x, z, R(10, 16), R(6, 10), R(10, 18), { slot: rng() < 0.5 ? 'brick' : 'plaster', roof: 'gable', roofCol: roofs[Math.floor(rng() * 4)], rot: Math.round(rng()) * Math.PI / 2 }); });
+      { const p = findCoast(-2.9, 6000, -3300, -1000); if (p) addLighthouse(p[0], p[1]); }
+      break; }
     case 'industrial': {
       const gs = 8, sp = 150, ox = -530, oz = -500;
       for (let i = 0; i < gs; i++) for (let j = 0; j < gs; j++) {
@@ -2654,14 +3261,17 @@ function applyMap(m, opts = {}) {
   const avoid = (x, z, pad) => {
     if (m.runway && Math.abs(x) < 80 + pad && Math.abs(z) < 520 + pad) return true;
     if (capsXZ.some(c => Math.hypot(c[0] - x, c[1] - z) < 110 + pad)) return true;
+    if (m.sea != null && terrainHeightAt(x, z) < m.sea + 0.8) return true;
     for (const t of taken) if (Math.hypot(t.x - x, t.z - z) < t.r + pad + 6) return true;
     return false;
   };
   scatterProps(m, rng, avoid);
 }
+function playerIsNaval() { try { return prog.currentVehicleType === 'tank' && !!getTank(prog.currentTankId).naval; } catch (e) { return false; } }
 function chooseMap() {
-  if (mapChoice === 'random') return MAPS[Math.floor(Math.random() * MAPS.length)];
-  return getMap(mapChoice);
+  let m = mapChoice === 'random' ? MAPS[Math.floor(Math.random() * MAPS.length)] : getMap(mapChoice);
+  if (playerIsNaval() && !m.fleet) { const sea = MAPS.filter(x => x.fleet); m = sea[Math.floor(Math.random() * sea.length)]; }   // ships need water
+  return m;
 }
 
 /* ============================================================
@@ -2890,6 +3500,11 @@ function drawMinimap() {
       H / 2 + ((z - cz) / MM_RANGE) * (H / 2)
     ];
   }
+  if (currentMap && currentMap.sea != null) {
+    mmCtx.fillStyle = 'rgba(30,100,150,0.55)';
+    for (let gy = 0; gy < H; gy += 10) for (let gx = 0; gx < W; gx += 10)
+      if (waterDepthAt(cx + ((gx + 5 - W / 2) / (W / 2)) * MM_RANGE, cz + ((gy + 5 - H / 2) / (H / 2)) * MM_RANGE) > 0) mmCtx.fillRect(gx, gy, 10, 10);
+  }
   // Capture points
   for (const c of captPoints) {
     const [mx, my] = toMM(c.x, c.z);
@@ -3009,6 +3624,7 @@ function spawnEnemyPlane(team = 'red') {
   });
 }
 function spawnEnemyTank(team = 'red') {
+  if (fleetZone(team) && player.kind === 'tank' && activeTank && activeTank.naval && navalCount(team) < (team === 'red' ? 6 : 4) && Math.random() < 0.8) return spawnEnemyShip(team);
   const tier = (player.kind === 'plane' && activePlane)
     ? Math.min(3, Math.floor(activePlane.tier * 0.7))
     : (activeTank ? activeTank.tier : 0);
@@ -3025,7 +3641,8 @@ function spawnEnemyTank(team = 'red') {
     const side = team === 'blue' ? -1 : 1;
     pos = new THREE.Vector3(side * 300 + Math.cos(a) * r * 0.5, 0, Math.sin(a) * r);
   }
-  const ttype = TANKS[Math.max(0, Math.min(TANKS.length - 1, tier))];
+  const ttype = LAND_TANKS[Math.max(0, Math.min(LAND_TANKS.length - 1, tier))];
+  if (waterDepthAt(pos.x, pos.z) > 1.5) { const c0 = captPoints[0]; pos.set(c0 ? c0.x : 0, 0, c0 ? c0.z + 70 : 70); }
   const grp = createTankMesh(ttype, team === 'red' ? { body: 0x6e5a44, accent: 0x2a2218 } : null, { team });
   scene.add(grp);
   enemies.push({
@@ -3045,6 +3662,9 @@ function spawnWave() {
   const nBlue = 2 + Math.min(2, Math.floor(prog.totalKills / 15));
   for (let i = 0; i < nRed; i++) spawnEnemy('red');
   for (let i = 0; i < nBlue; i++) spawnEnemy('blue');
+  const ft = fleetTargets();
+  for (let i = 0; i < ft.red; i++) spawnEnemyShip('red');
+  for (let i = 0; i < ft.blue; i++) spawnEnemyShip('blue');
 }
 function maintainUnitCounts() {
   if (!MATCH.active || MATCH.ended) return;
@@ -3065,6 +3685,9 @@ function maintainUnitCounts() {
     spawnEnemy('red');
   }
   if (blueAlive < targetBlue) spawnEnemy('blue');
+  const ft = fleetTargets();
+  if (ft.red && navalCount('red') < ft.red) spawnEnemyShip('red');
+  if (ft.blue && navalCount('blue') < ft.blue) spawnEnemyShip('blue');
 }
 
 /* ============================================================
@@ -3289,6 +3912,7 @@ function stratRedSupport() {
 /* ---- respawns, income, per-frame ---- */
 function respawnUnit(e) {
   e.mesh.visible = true; e.alive = true; e.health = e.maxHealth; e.fireCd = 1 + Math.random();
+  if (e.naval && fleetZone(e.team)) { e.position.copy(shipSpawnPos(e.team)); e.velocity.set(0, 0, 0); e.hullYaw = Math.atan2(e.position.x, e.position.z); return; }
   const teamCaps = captPoints.filter(c => c.owner === e.team || c.owner === 'neutral');
   if (e.kind === 'plane') {
     if (teamCaps.length) {
@@ -3411,6 +4035,8 @@ function stratBuildBg() {
     const hz = H[Math.min(N - 1, j + 1) * N + i] - H[Math.max(0, j - 1) * N + i];
     const shade = THREE.MathUtils.clamp(1 + (-hx - hz) * 0.012, 0.55, 1.5) * (0.55 + Math.min(0.5, Math.max(0, h) / 500));
     const k = (j * N + i) * 4;
+    const wd = waterDepthAt((i / N - 0.5) * 2 * STRAT.R, (j / N - 0.5) * 2 * STRAT.R);
+    if (wd > 0) { const tw = Math.min(1, wd / 30); im.data[k] = 34 * (1 - tw) + 10 * tw; im.data[k + 1] = 100 * (1 - tw) + 42 * tw; im.data[k + 2] = 140 * (1 - tw) + 80 * tw; im.data[k + 3] = 255; continue; }
     im.data[k] = Math.min(255, br * shade * 0.6); im.data[k + 1] = Math.min(255, bg * shade * 0.6);
     im.data[k + 2] = Math.min(255, bb * shade * 0.6); im.data[k + 3] = 255;
   }
@@ -4982,6 +5608,7 @@ function updatePreview(item, skin, isTank) {
   initPreview();
   if (previewMesh) { previewScene.remove(previewMesh); disposeMesh(previewMesh); }
   previewMesh = isTank ? createTankMesh(item, skin) : createAircraftMesh(item, skin);
+  applyDecals(previewMesh, isTank ? 'tank' : 'plane');
   previewMesh.rotation.y = -Math.PI / 6;
   previewScene.add(previewMesh);
   resizePreview();
@@ -5031,10 +5658,11 @@ function buildAircraftTab() {
 }
 
 /* ---------- Tanks Tab ---------- */
-function buildTanksTab() {
-  const list = document.getElementById('hgTanksList');
+function buildTanksTab(naval = false) {
+  const list = document.getElementById(naval ? 'hgShipsList' : 'hgTanksList');
+  const sfx = naval ? 'Ship' : 'Tank';
   list.innerHTML = '';
-  for (const t of TANKS) {
+  for (const t of TANKS.filter(x => !!x.naval === naval)) {
     const unlocked = isTankUnlocked(t);
     const isCurrent = (currentVehicleType === 'tank' && t.id === prog.currentTankId);
     const card = document.createElement('div');
@@ -5055,20 +5683,21 @@ function buildTanksTab() {
           currentVehicleType = 'tank';
           vehicleChangedInHangar = true;
           saveProg();
-          buildAircraftTab(); buildTanksTab();
+          buildAircraftTab(); buildTanksTab(naval);
           updateUpgradeTab(); updatePaintTab();
           const skin = SKINS.find(s => s.id === prog.currentSkin) || SKINS[0];
           updatePreview(getTank(t.id), skin, true);
-          updatePreviewInfo(getTank(t.id), true, 'pvNameTank', 'pvEraTank', 'pvStatsTank');
+          updatePreviewInfo(getTank(t.id), true, 'pvName' + sfx, 'pvEra' + sfx, 'pvStats' + sfx);
         }
       };
     }
     list.appendChild(card);
   }
-  const cur = getTank(prog.currentTankId);
-  attachPreviewTo(document.getElementById('pvCanvasTank'));
+  const curRaw = getTank(prog.currentTankId);
+  const cur = (!!curRaw.naval === naval) ? curRaw : TANKS.find(x => !!x.naval === naval);
+  attachPreviewTo(document.getElementById('pvCanvas' + sfx));
   previewSlot = 'tank';
-  updatePreviewInfo(cur, true, 'pvNameTank', 'pvEraTank', 'pvStatsTank');
+  updatePreviewInfo(cur, true, 'pvName' + sfx, 'pvEra' + sfx, 'pvStats' + sfx);
   const skin = SKINS.find(s => s.id === prog.currentSkin) || SKINS[0];
   updatePreview(cur, skin, true);
 }
@@ -5184,6 +5813,355 @@ function buildPaintTab() {
 }
 function updatePaintTab() { if (hangarTab === 'paint') buildPaintTab(); }
 
+/* ============================================================
+   CUSTOM DECALS — per vehicle type, drawn on the model surface
+   ============================================================ */
+const DECAL_KEY = 'bf_decals_v1';
+const DECAL_SLOTS = {
+  plane: [ { id: 'fuselage', name: 'FUSELAGE', note: 'both sides' }, { id: 'wing', name: 'WINGS', note: 'top surface' }, { id: 'tail', name: 'TAIL FIN', note: 'both sides' } ],
+  tank:  [ { id: 'turret', name: 'TURRET', note: 'both sides' }, { id: 'top', name: 'ROOF', note: 'air-ID panel' }, { id: 'hull', name: 'HULL REAR', note: 'rear plate' } ]
+};
+const DECAL_LIB = [
+  { id: 'none', name: 'NONE' }, { id: 'roundel', name: 'ROUNDEL' }, { id: 'star', name: 'STAR' }, { id: 'cross', name: 'CROSS' },
+  { id: 'target', name: 'BULLSEYE' }, { id: 'diamond', name: 'DIAMOND' }, { id: 'chevrons', name: 'CHEVRONS' }, { id: 'stripes', name: 'STRIPES' },
+  { id: 'flag', name: 'TRI-BAND' }, { id: 'lightning', name: 'BOLT' }, { id: 'skull', name: 'SKULL' }, { id: 'wings', name: 'WINGS' },
+  { id: 'fangs', name: 'FANGS' }, { id: 'number', name: 'NUMBER' }, { id: 'tally', name: 'KILL TALLY' }, { id: 'custom', name: 'MY IMAGE' }
+];
+function decalDefault() { return { id: 'none', c1: '#d0261e', c2: '#f2f4f6', s: 1, text: '07', img: null }; }
+const DECAL_CFG = { plane: {}, tank: {} };
+for (const k of ['plane', 'tank']) for (const s of DECAL_SLOTS[k]) DECAL_CFG[k][s.id] = decalDefault();
+function loadDecals() {
+  try {
+    const d = JSON.parse(localStorage.getItem(DECAL_KEY) || 'null');
+    if (!d) return;
+    for (const k of ['plane', 'tank']) for (const s of DECAL_SLOTS[k])
+      if (d[k] && d[k][s.id]) Object.assign(DECAL_CFG[k][s.id], d[k][s.id]);
+  } catch (e) {}
+}
+function saveDecals() { try { localStorage.setItem(DECAL_KEY, JSON.stringify(DECAL_CFG)); } catch (e) {} }
+loadDecals();
+
+/* ---- artwork (canvas 2D, 256×256) ---- */
+const IMG_CACHE = Object.create(null);
+function decalImage(cfg) {
+  if (!cfg.img) return null;
+  const c = IMG_CACHE[cfg.img];
+  if (c) return c.ready === false ? null : c;
+  const im = new Image(); IMG_CACHE[cfg.img] = { ready: false };
+  im.onload = () => { IMG_CACHE[cfg.img] = im; decalsRefreshAll(); };
+  im.src = cfg.img;
+  return null;
+}
+function drawDecalArt(g, cfg) {
+  const { id, c1, c2 } = cfg;
+  g.clearRect(0, 0, 256, 256);
+  g.lineJoin = 'round'; g.lineCap = 'round';
+  const circ = (r, col) => { g.fillStyle = col; g.beginPath(); g.arc(128, 128, r, 0, 7); g.fill(); };
+  const poly = (pts, fill, stroke, lw) => {
+    g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath();
+    if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.lineWidth = lw || 8; g.strokeStyle = stroke; g.stroke(); }
+  };
+  switch (id) {
+    case 'roundel': circ(122, c1); circ(90, c2); circ(58, c1); circ(26, c2); break;
+    case 'target': circ(122, c1); circ(98, c2); circ(74, c1); circ(50, c2); circ(26, c1); break;
+    case 'star': {
+      const pts = []; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 50 : 118; pts.push([128 + Math.cos(a) * r, 132 + Math.sin(a) * r]); }
+      poly(pts, c1, c2, 10); break; }
+    case 'cross': {
+      const a = 40, b = 118; poly([[128 - a, 128 - b], [128 + a, 128 - b], [128 + a, 128 - a], [128 + b, 128 - a], [128 + b, 128 + a], [128 + a, 128 + a], [128 + a, 128 + b], [128 - a, 128 + b], [128 - a, 128 + a], [128 - b, 128 + a], [128 - b, 128 - a], [128 - a, 128 - a]], c1, c2, 10); break; }
+    case 'diamond': poly([[128, 6], [250, 128], [128, 250], [6, 128]], c1); poly([[128, 54], [202, 128], [128, 202], [54, 128]], c2); poly([[128, 96], [160, 128], [128, 160], [96, 128]], c1); break;
+    case 'chevrons':
+      for (let i = 0; i < 3; i++) { const y = 74 + i * 52; g.beginPath(); g.moveTo(26, y + 50); g.lineTo(128, y - 30); g.lineTo(230, y + 50); g.lineWidth = 34; g.strokeStyle = c2; g.stroke(); g.lineWidth = 22; g.strokeStyle = c1; g.stroke(); }
+      break;
+    case 'stripes':
+      g.save(); g.translate(128, 128); g.rotate(-0.6);
+      [-72, 0, 72].forEach((y, i) => { g.fillStyle = i === 1 ? c2 : c1; g.fillRect(-170, y - 26, 340, 52); });
+      g.restore(); break;
+    case 'flag': {
+      g.fillStyle = c1; g.fillRect(14, 50, 228, 52); g.fillStyle = c2; g.fillRect(14, 102, 228, 52); g.fillStyle = c1; g.fillRect(14, 154, 228, 52);
+      g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,.55)'; g.strokeRect(14, 50, 228, 156); break; }
+    case 'lightning': poly([[150, 6], [58, 144], [118, 144], [92, 250], [204, 100], [140, 100]], c1, c2, 10); break;
+    case 'skull':
+      g.lineWidth = 24; g.strokeStyle = c1; g.beginPath(); g.moveTo(30, 170); g.lineTo(226, 246); g.moveTo(226, 170); g.lineTo(30, 246); g.stroke();
+      circ(0, c1); g.fillStyle = c1; g.beginPath(); g.arc(128, 98, 78, 0, 7); g.fill();
+      g.beginPath(); g.roundRect ? g.roundRect(84, 136, 88, 58, 14) : g.rect(84, 136, 88, 58); g.fill();
+      g.fillStyle = c2; g.beginPath(); g.ellipse(98, 98, 20, 24, 0, 0, 7); g.ellipse(158, 98, 20, 24, 0, 0, 7); g.fill();
+      poly([[128, 118], [116, 144], [140, 144]], c2);
+      g.lineWidth = 6; g.strokeStyle = c2; g.beginPath(); for (let x = 102; x <= 156; x += 18) { g.moveTo(x, 160); g.lineTo(x, 190); } g.stroke(); break;
+    case 'wings': {
+      for (const sd of [-1, 1]) for (let k = 0; k < 4; k++) {
+        const y = 92 + k * 28, x1 = 128 + sd * 30, x2 = 128 + sd * (122 - k * 14);
+        poly([[x1, y - 14], [x2, y + 4 - k * 2], [x2 - sd * 6, y + 24], [x1, y + 16]], k % 2 ? c2 : c1, 'rgba(0,0,0,.4)', 3);
+      }
+      circ(30, c1); g.fillStyle = c2; g.beginPath(); g.arc(128, 128, 14, 0, 7); g.fill(); break; }
+    case 'fangs': {
+      g.fillStyle = c1; g.beginPath(); g.ellipse(128, 130, 120, 62, 0, 0, 7); g.fill(); g.lineWidth = 8; g.strokeStyle = 'rgba(0,0,0,.6)'; g.stroke();
+      for (let i = 0; i < 7; i++) { const x = 34 + i * 31; poly([[x, 84], [x + 28, 84], [x + 14, 124]], c2, 'rgba(0,0,0,.5)', 3); poly([[x + 2, 176], [x + 30, 176], [x + 16, 138]], c2, 'rgba(0,0,0,.5)', 3); }
+      break; }
+    case 'number': {
+      let t = (cfg.text || '07').toUpperCase().slice(0, 4), size = 170;
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      for (; size > 40; size -= 6) { g.font = `900 ${size}px Impact, 'Arial Black', 'Segoe UI', sans-serif`; if (g.measureText(t).width < 232) break; }
+      g.lineWidth = Math.max(8, size * 0.08); g.strokeStyle = c2; g.strokeText(t, 128, 134); g.fillStyle = c1; g.fillText(t, 128, 134); break; }
+    case 'tally': {
+      const n = Math.max(1, Math.min(30, cfg.tally == null ? prog.totalKills : cfg.tally));
+      g.strokeStyle = c1; g.lineWidth = 9; g.lineCap = 'butt';
+      let x = 28, y = 56, rowN = 0;
+      for (let i = 0; i < n; i++) {
+        const gi = i % 5;
+        if (gi === 4) { g.beginPath(); g.moveTo(x - 66, y + 62); g.lineTo(x + 8, y - 4); g.stroke(); x += 28; rowN++; if (rowN === 3) { rowN = 0; x = 28; y += 80; } }
+        else { g.beginPath(); g.moveTo(x, y); g.lineTo(x, y + 58); g.stroke(); x += 16; }
+      }
+      break; }
+    case 'custom': {
+      const im = decalImage(cfg);
+      if (im) { const w = im.width || 256, h = im.height || 256, k = Math.min(256 / w, 256 / h); g.drawImage(im, 128 - w * k / 2, 128 - h * k / 2, w * k, h * k); }
+      else { g.strokeStyle = c2; g.lineWidth = 8; g.setLineDash([16, 12]); g.strokeRect(24, 24, 208, 208); g.setLineDash([]); }
+      break; }
+  }
+}
+const DECAL_TEX = Object.create(null);
+function customDecalTexture(cfg) {
+  const key = [cfg.id, cfg.c1, cfg.c2, cfg.text, cfg.img ? cfg.img.length + ':' + (IMG_CACHE[cfg.img] && IMG_CACHE[cfg.img].ready !== false ? 1 : 0) : '', cfg.id === 'tally' ? prog.totalKills : ''].join('|');
+  if (DECAL_TEX[key]) return DECAL_TEX[key];
+  const cv = document.createElement('canvas'); cv.width = cv.height = 256;
+  drawDecalArt(cv.getContext('2d'), cfg);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  DECAL_TEX[key] = tex;
+  return tex;
+}
+
+/* ---- placement by raycasting onto the real model surface ---- */
+const _dRay = new THREE.Raycaster();
+const wn = (hh) => hh.face.normal.clone().transformDirection(hh.object.matrixWorld);
+function decalCast(root, o, d, filter) {
+  _dRay.set(o, d.clone().normalize());
+  const hits = _dRay.intersectObject(root, true);
+  for (const h of hits) {
+    if (!h.face || !h.object.visible || h.object.userData.isDecal) continue;
+    const m = h.object.material;
+    if (m && !Array.isArray(m) && m.transparent && m.opacity < 0.9) continue;
+    if (filter && !filter(h)) continue;
+    return { p: h.point.clone(), n: h.face.normal.clone().transformDirection(h.object.matrixWorld), obj: h.object };
+  }
+  return null;
+}
+function decalClear(mesh) {
+  const list = mesh.userData.decals;
+  if (list) for (const m of list) { if (m.parent) m.parent.remove(m); m.geometry.dispose(); m.material.dispose(); }
+  mesh.userData.decals = [];
+}
+function decalPlace(mesh, parent, cfg, size, p, n, upHint) {
+  const z = n.clone().normalize();
+  const y = upHint.clone().sub(z.clone().multiplyScalar(upHint.dot(z)));
+  if (y.lengthSq() < 1e-4) y.set(0, 0, -1);
+  y.normalize();
+  const x = new THREE.Vector3().crossVectors(y, z);
+  const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(x, y, z));
+  const pos = p.clone().addScaledVector(z, 0.035);
+  const mat = new THREE.MeshStandardMaterial({ map: customDecalTexture(cfg), transparent: true, roughness: 0.85, metalness: 0,
+    polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3, depthWrite: false });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(size, size), mat);
+  m.userData.isDecal = true;
+  parent.updateWorldMatrix(true, false);
+  parent.worldToLocal(pos);
+  const pq = new THREE.Quaternion(); parent.getWorldQuaternion(pq);
+  q.premultiply(pq.invert());
+  m.position.copy(pos); m.quaternion.copy(q);
+  parent.add(m);
+  mesh.userData.decals.push(m);
+}
+function applyDecals(mesh, kind) {
+  decalClear(mesh);
+  const cfgs = DECAL_CFG[kind];
+  if (!cfgs || !Object.values(cfgs).some(c => c.id !== 'none')) return;
+  // measure the model at its rest pose, at the origin
+  const sp = mesh.position.clone(), sq = mesh.quaternion.clone(), ss = mesh.scale.clone();
+  mesh.position.set(0, 0, 0); mesh.quaternion.identity(); mesh.scale.set(1, 1, 1);
+  const turret = mesh.userData.turret, barrel = mesh.userData.barrel;
+  const ty = turret ? turret.rotation.y : 0, bx = barrel ? barrel.rotation.x : 0;
+  if (turret) turret.rotation.y = 0; if (barrel) barrel.rotation.x = 0;
+  mesh.updateMatrixWorld(true);
+  try {
+    const box = new THREE.Box3().setFromObject(mesh);
+    const sz = box.getSize(new THREE.Vector3());
+    const X = (v) => new THREE.Vector3(v[0], v[1], v[2]);
+    if (kind === 'plane') {
+      const L = sz.z, W = sz.x, H = sz.y, up = new THREE.Vector3(0, 1, 0);
+      const f = cfgs.fuselage;
+      if (f.id !== 'none') for (const s of [-1, 1]) {
+        let best = null;
+        for (let i = 0; i < 7; i++) {
+          const y = box.min.y + H * (0.2 + i * 0.1), zz = box.min.z + L * 0.6;
+          const h = decalCast(mesh, X([s * (W + 5), y, zz]), X([-s, 0, 0]), (hh) => Math.abs(wn(hh).x) > 0.35);
+          if (h && (!best || Math.abs(h.p.x) < Math.abs(best.p.x) - 0.01)) best = h;
+        }
+        if (best) decalPlace(mesh, mesh, f, Math.min(L * 0.2, Math.abs(best.p.x) * 3.2 + 0.6) * f.s, best.p, best.n, up);
+      }
+      const w = cfgs.wing;
+      if (w.id !== 'none') for (const s of [-1, 1]) {
+        for (const zf of [0.45, 0.4, 0.5, 0.35, 0.55]) {
+          const h = decalCast(mesh, X([s * W * 0.28, box.max.y + 5, box.min.z + L * zf]), X([0, -1, 0]), (hh) => wn(hh).y > 0.6);
+          if (h) { decalPlace(mesh, mesh, w, W * 0.14 * w.s, h.p, h.n, X([0, 0, -1])); break; }
+        }
+      }
+      const t = cfgs.tail;
+      if (t.id !== 'none') for (const s of [-1, 1]) {
+        let done = false;
+        for (let i = 0; i < 6 && !done; i++) for (const zf of [0.9, 0.86, 0.94]) {
+          const y = box.max.y - H * (0.04 + i * 0.05);
+          const h = decalCast(mesh, X([s * (W + 5), y, box.min.z + L * zf]), X([-s, 0, 0]), (hh) => Math.abs(hh.p.x) < W * 0.18 && Math.abs(wn(hh).x) > 0.35);
+          if (h) { decalPlace(mesh, mesh, t, L * 0.09 * t.s, h.p, h.n, up); done = true; break; }
+        }
+      }
+    } else if (turret) {
+      const tb = new THREE.Box3().setFromObject(turret), tl = tb.max.z - tb.min.z, th = tb.max.y - tb.min.y, up = new THREE.Vector3(0, 1, 0);
+      let zc = null, halfW = 0;
+      const tc = cfgs.turret;
+      for (const s of [-1, 1]) {
+        let best = null;
+        for (let zi = 0; zi < 14; zi++) for (const yf of [0.4, 0.55, 0.7]) {
+          const h = decalCast(turret, X([s * 60, tb.min.y + th * yf, tb.min.z + tl * (zi + 0.5) / 14]), X([-s, 0, 0]));
+          if (h && (!best || Math.abs(h.p.x) > Math.abs(best.p.x) + 0.01)) best = h;
+        }
+        if (best) { zc = best.p.z; halfW = Math.max(halfW, Math.abs(best.p.x)); if (tc.id !== 'none') decalPlace(mesh, turret, tc, halfW * 2 * 0.36 * tc.s, best.p, best.n, up); }
+      }
+      const tp = cfgs.top;
+      if (tp.id !== 'none' && zc != null) {
+        for (const dz of [0.12, 0.2, 0.0, 0.3]) {
+          const h = decalCast(turret, X([0, tb.max.y + 5, zc + tl * dz]), X([0, -1, 0]), (hh) => wn(hh).y > 0.6);
+          if (h) { decalPlace(mesh, turret, tp, Math.max(0.6, halfW * 2 * 0.42 * tp.s), h.p, h.n, X([0, 0, -1])); break; }
+        }
+      }
+      const hc = cfgs.hull;
+      if (hc.id !== 'none') {
+        const inTurret = (o) => { for (let p = o; p; p = p.parent) if (p === turret) return true; return false; };
+        for (let i = 0; i < 6; i++) {
+          const y = box.min.y + sz.y * (0.18 + i * 0.07);
+          const h = decalCast(mesh, X([0, y, box.max.z + 5]), X([0, 0, -1]), (hh) => !inTurret(hh.object) && wn(hh).z > 0.5);
+          if (h) { decalPlace(mesh, mesh, hc, sz.x * 0.2 * hc.s, h.p, h.n, up); break; }
+        }
+      }
+    }
+  } catch (err) { console.warn('decals skipped:', err); }
+  if (turret) turret.rotation.y = ty; if (barrel) barrel.rotation.x = bx;
+  mesh.position.copy(sp); mesh.quaternion.copy(sq); mesh.scale.copy(ss);
+  mesh.updateMatrixWorld(true);
+}
+let decalsDirty = false;
+function decalsRefreshAll() {
+  if (typeof applyCurrentVehicle === 'function' && !hangarEl.classList.contains('open')) applyCurrentVehicle();
+  if (hangarEl.classList.contains('open') && hangarTab === 'decals') decalsPreviewNow();
+}
+
+/* ---- hangar tab ---- */
+let decalSlot = null, decalTimer = null;
+function decalKind() { return currentVehicleType === 'tank' ? 'tank' : 'plane'; }
+function decalsPreviewNow() {
+  const kind = decalKind();
+  const item = kind === 'tank' ? getTank(prog.currentTankId) : getPlane(prog.currentPlaneId);
+  const skin = SKINS.find(s => s.id === prog.currentSkin) || SKINS[0];
+  updatePreview(item, skin, kind === 'tank');
+}
+function decalChanged(immediate) {
+  saveDecals(); decalsDirty = true;
+  clearTimeout(decalTimer);
+  decalTimer = setTimeout(decalsPreviewNow, immediate ? 0 : 120);
+}
+function decalThumb(cfg, id) {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 64;
+  if (id === 'none') {
+    const g = cv.getContext('2d'); g.strokeStyle = '#8a949b'; g.lineWidth = 3; g.beginPath(); g.arc(32, 32, 20, 0, 7); g.moveTo(18, 46); g.lineTo(46, 18); g.stroke(); return cv;
+  }
+  const big = document.createElement('canvas'); big.width = big.height = 256;
+  drawDecalArt(big.getContext('2d'), Object.assign({}, cfg, { id, tally: 13 }));
+  cv.getContext('2d').drawImage(big, 0, 0, 64, 64);
+  return cv;
+}
+function buildDecalsTab() {
+  const kind = decalKind();
+  const item = kind === 'tank' ? getTank(prog.currentTankId) : getPlane(prog.currentPlaneId);
+  document.getElementById('hgDecalWhich').textContent = item.name.toUpperCase() + ' · ALL ' + (kind === 'tank' ? 'TANKS' : 'AIRCRAFT');
+  const slots = DECAL_SLOTS[kind];
+  if (!decalSlot || !slots.some(s => s.id === decalSlot)) decalSlot = slots[0].id;
+  const cfg = DECAL_CFG[kind][decalSlot];
+  const root = document.getElementById('dcControls'); root.innerHTML = '';
+  const row = (cls) => { const d = document.createElement('div'); d.className = cls; root.appendChild(d); return d; };
+  // slot pills
+  const pills = row('dc-pills');
+  for (const s of slots) {
+    const b = document.createElement('button');
+    const on = DECAL_CFG[kind][s.id].id !== 'none';
+    b.className = 'dc-pill' + (s.id === decalSlot ? ' active' : '') + (on ? ' on' : '');
+    b.innerHTML = `${s.name}<small>${s.note}</small>`;
+    b.onclick = () => { decalSlot = s.id; buildDecalsTab(); };
+    pills.appendChild(b);
+  }
+  // artwork grid
+  const lab = row('dc-label'); lab.textContent = 'ARTWORK';
+  const grid = row('dc-grid');
+  for (const d of DECAL_LIB) {
+    const b = document.createElement('div');
+    b.className = 'dc-item' + (cfg.id === d.id ? ' sel' : '');
+    b.appendChild(decalThumb(cfg, d.id));
+    const n = document.createElement('span'); n.textContent = d.name; b.appendChild(n);
+    b.onclick = () => {
+      if (d.id === 'custom' && !cfg.img) { cfg.id = 'custom'; document.getElementById('dcFile').click(); return; }
+      cfg.id = d.id; decalChanged(true); buildDecalsTab();
+    };
+    grid.appendChild(b);
+  }
+  if (cfg.id !== 'none') {
+    const ctl = row('dc-ctl');
+    const mk = (label, el) => { const w = document.createElement('label'); w.innerHTML = `<span>${label}</span>`; w.appendChild(el); ctl.appendChild(w); return el; };
+    const c1 = document.createElement('input'); c1.type = 'color'; c1.value = cfg.c1; c1.oninput = () => { cfg.c1 = c1.value; decalChanged(); };
+    const c2 = document.createElement('input'); c2.type = 'color'; c2.value = cfg.c2; c2.oninput = () => { cfg.c2 = c2.value; decalChanged(); };
+    mk('PRIMARY', c1); mk('SECONDARY', c2);
+    const sc = document.createElement('input'); sc.type = 'range'; sc.min = 0.4; sc.max = 2; sc.step = 0.05; sc.value = cfg.s;
+    sc.oninput = () => { cfg.s = +sc.value; scv.textContent = cfg.s.toFixed(2) + '×'; decalChanged(); };
+    const scv = document.createElement('b'); scv.textContent = cfg.s.toFixed(2) + '×';
+    const sw = mk('SIZE', sc); sw.parentElement.appendChild(scv);
+    if (cfg.id === 'number') {
+      const tx = document.createElement('input'); tx.type = 'text'; tx.maxLength = 4; tx.value = cfg.text; tx.className = 'dc-text';
+      tx.oninput = () => { cfg.text = tx.value.toUpperCase() || '0'; decalChanged(); }; mk('TEXT', tx);
+    }
+    if (cfg.id === 'custom') {
+      const up = document.createElement('button'); up.className = 'dc-btn'; up.textContent = 'REPLACE IMAGE'; up.onclick = () => document.getElementById('dcFile').click();
+      const w = document.createElement('label'); w.appendChild(up); ctl.appendChild(w);
+    }
+  }
+  const foot = row('dc-foot');
+  const r1 = document.createElement('button'); r1.className = 'dc-btn'; r1.textContent = 'CLEAR THIS SLOT';
+  r1.onclick = () => { Object.assign(cfg, decalDefault()); decalChanged(true); buildDecalsTab(); };
+  const r2 = document.createElement('button'); r2.className = 'dc-btn'; r2.textContent = 'CLEAR ALL';
+  r2.onclick = () => { for (const s of slots) Object.assign(DECAL_CFG[kind][s.id], decalDefault()); decalChanged(true); buildDecalsTab(); };
+  foot.appendChild(r1); foot.appendChild(r2);
+  const note = row('dc-note'); note.textContent = 'Decals are saved per vehicle type and appear on every ' + (kind === 'tank' ? 'tank' : 'aircraft') + ' you fly. Other players do not see them yet.';
+  attachPreviewTo(document.getElementById('pvCanvasDecal'));
+  previewSlot = 'decal';
+  document.getElementById('pvNameDecal').textContent = item.name.toUpperCase();
+  decalsPreviewNow();
+}
+document.getElementById('dcFile').addEventListener('change', (e) => {
+  const file = e.target.files && e.target.files[0]; e.target.value = '';
+  if (!file) return;
+  const kind = decalKind(), cfg = DECAL_CFG[kind][decalSlot];
+  const url = URL.createObjectURL(file), im = new Image();
+  im.onload = () => {
+    const cv = document.createElement('canvas'); cv.width = cv.height = 256;
+    const k = Math.min(256 / im.width, 256 / im.height);
+    cv.getContext('2d').drawImage(im, 128 - im.width * k / 2, 128 - im.height * k / 2, im.width * k, im.height * k);
+    URL.revokeObjectURL(url);
+    cfg.img = cv.toDataURL('image/png'); cfg.id = 'custom'; IMG_CACHE[cfg.img] = cv;
+    decalChanged(true); buildDecalsTab();
+    toast('IMAGE ADDED · PNG WITH TRANSPARENCY WORKS BEST');
+  };
+  im.onerror = () => { URL.revokeObjectURL(url); toast('COULD NOT READ THAT IMAGE'); };
+  im.src = url;
+});
+
+
 function updateHangarHeader() {
   document.getElementById('hgCredits').textContent = prog.credits;
   document.getElementById('hgKills').textContent = prog.totalKills;
@@ -5198,8 +6176,10 @@ document.querySelectorAll('.hg-tabs button').forEach(btn => {
     document.getElementById('hg-' + hangarTab).classList.add('active');
     if (hangarTab === 'aircraft') buildAircraftTab();
     else if (hangarTab === 'tanks') buildTanksTab();
+    else if (hangarTab === 'ships') buildTanksTab(true);
     else if (hangarTab === 'upgrades') buildUpgradesTab();
     else if (hangarTab === 'paint') buildPaintTab();
+    else if (hangarTab === 'decals') buildDecalsTab();
   };
 });
 
@@ -5215,26 +6195,33 @@ function openHangar() {
   for (const k in keysDown) keysDown[k] = false;
   updateHangarHeader();
   // Open the tab matching current vehicle type
-  const startTab = currentVehicleType === 'tank' ? 'tanks' : 'aircraft';
+  const startTab = currentVehicleType === 'tank' ? (getTank(prog.currentTankId).naval ? 'ships' : 'tanks') : 'aircraft';
   document.querySelectorAll('.hg-tabs button').forEach(b =>
     b.classList.toggle('active', b.dataset.hg === startTab));
   document.querySelectorAll('.hg-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('hg-' + startTab).classList.add('active');
   hangarTab = startTab;
   if (startTab === 'aircraft') buildAircraftTab();
-  else buildTanksTab();
+  else buildTanksTab(startTab === 'ships');
   setTimeout(() => { resizePreview(); }, 30);
+}
+/** Apply a vehicle change in-match; a ship needs a sea map, so that restarts the battle on one. */
+function redeployVehicle() {
+  applyCurrentVehicle();
+  if (playerIsNaval() && !(currentMap && currentMap.fleet)) { fullReset(); toast('NAVAL BATTLE · ' + currentMap.name.toUpperCase()); return; }
+  resetPlayer();
 }
 function closeHangar(deploying) {
   hangarEl.classList.remove('open');
   paused = false;
   const from = hangarFrom; hangarFrom = null;
+  if (decalsDirty) { decalsDirty = false; if (!vehicleChangedInHangar) applyCurrentVehicle(); }
   if (from === 'gameover') {
     if (deploying) {
       // DEPLOY from the result screen: a finished battle starts a fresh one, a death respawns you
       vehicleChangedInHangar = false;
       if (MATCH.ended) { fullReset(); }
-      else { applyCurrentVehicle(); resetPlayer(); }
+      else { redeployVehicle(); }
     } else {
       // BACK: return to the result screen (vehicle change, if any, is applied on respawn / next battle)
       document.getElementById('gameover').classList.add('show');
@@ -5243,8 +6230,7 @@ function closeHangar(deploying) {
   }
   if (vehicleChangedInHangar) {
     vehicleChangedInHangar = false;
-    applyCurrentVehicle();
-    resetPlayer();
+    redeployVehicle();
   }
 }
 function toggleHangar() {
@@ -5362,7 +6348,8 @@ function updateTankPhysics(dt) {
 
   // --- Drive ---
   const targetSpeed = driveIn * S.maxSpeed;
-  const accelRate = S.accel * 4;
+  const nav = !!(activeTank && activeTank.naval);
+  const accelRate = S.accel * (nav ? 0.9 : 4);
   if (player.forwardSpeed < targetSpeed) {
     player.forwardSpeed = Math.min(targetSpeed, player.forwardSpeed + accelRate * dt);
   } else {
@@ -5370,22 +6357,32 @@ function updateTankPhysics(dt) {
   }
   // Natural idle drag when no input
   if (Math.abs(driveIn) < 0.05) {
-    const drag = S.accel * 2 * dt;
+    const drag = S.accel * (nav ? 0.4 : 2) * dt;
     if (Math.abs(player.forwardSpeed) <= drag) player.forwardSpeed = 0;
     else player.forwardSpeed -= Math.sign(player.forwardSpeed) * drag;
   }
 
   // --- Hull steering ---
   const spdFactor = Math.min(1, Math.abs(player.forwardSpeed) / Math.max(4, S.maxSpeed * 0.4));
-  const pivotBonus = 0.6 + 0.4 * spdFactor;   // tanks can pivot in place
+  const pivotBonus = nav ? 0.2 + 0.8 * spdFactor : 0.6 + 0.4 * spdFactor;   // tanks pivot in place, ships need way on
   player.hullYaw += steerIn * S.turnRate * pivotBonus * dt;
 
   // --- Move hull ---
   const forward = new THREE.Vector3(-Math.sin(player.hullYaw), 0, -Math.cos(player.hullYaw));
   const prevX = player.position.x, prevZ = player.position.z;
   player.position.addScaledVector(forward, player.forwardSpeed * dt);
-  if (terrainSlopeAt(player.position.x, player.position.z) > 0.62) { player.position.x = prevX; player.position.z = prevZ; player.forwardSpeed *= 0.2; }   // too steep to climb
-  player.position.y = terrainHeightAt(player.position.x, player.position.z);
+  if (nav) {
+    if (!navalOK(player.position.x, player.position.z)) {          // ran aground: slide along the shore
+      let nx = player.position.x, nz = player.position.z;
+      if (navalOK(nx, prevZ)) nz = prevZ; else if (navalOK(prevX, nz)) nx = prevX; else { nx = prevX; nz = prevZ; }
+      player.position.x = nx; player.position.z = nz; player.forwardSpeed *= 0.55;
+    }
+    player.position.y = seaLevel();
+    if (player.bombs < S.mainGunAmmo) { player._ammoT = (player._ammoT || 0) + dt; if (player._ammoT > 3) { player._ammoT = 0; player.bombs++; } }
+  } else {
+    if (terrainSlopeAt(player.position.x, player.position.z) > 0.62 || waterDepthAt(player.position.x, player.position.z) > 1.8) { player.position.x = prevX; player.position.z = prevZ; player.forwardSpeed *= 0.2; }   // too steep / too deep
+    player.position.y = terrainHeightAt(player.position.x, player.position.z);
+  }
   // Simple building collision — push back if we clip a building footprint
   for (const bd of buildings) {
     if (bd.destroyed) continue;
@@ -5419,7 +6416,8 @@ function updateTankPhysics(dt) {
 
   // --- Mesh sync ---
   playerMesh.position.copy(player.position);
-  terrainTilt(player.position.x, player.position.z, player.hullYaw, playerMesh.quaternion);
+  if (nav) { shipSway(playerMesh, player.position, player.hullYaw, player.forwardSpeed, S.maxSpeed); shipWake(player.position, player.hullYaw, player.forwardSpeed, activeTank, dt, player._wakeH || (player._wakeH = {})); }
+  else terrainTilt(player.position.x, player.position.z, player.hullYaw, playerMesh.quaternion);
   if (playerMesh.userData.turret) playerMesh.userData.turret.rotation.y = player.turretYaw;
   if (playerMesh.userData.barrel) playerMesh.userData.barrel.rotation.x = player.turretPitch;
 }
@@ -5490,7 +6488,15 @@ const _aimWorld = new THREE.Vector3();
 const _aimNdc = new THREE.Vector3();
 const _muzzlePos = new THREE.Vector3();
 const TANK_MUZZLE_Y = { mark4: 3.25, sherman: 2.15, t72: 1.85, abrams: 1.8 };
-function tankMuzzleY() { return (activeTank && TANK_MUZZLE_Y[activeTank.id]) || 1.9; }
+function tankMuzzleY() { return (activeTank && (activeTank.muzzleY || TANK_MUZZLE_Y[activeTank.id])) || 1.9; }
+function tankMuzzlePos(dir) {
+  const p = player.position.clone(); p.y += tankMuzzleY();
+  if (activeTank && activeTank.naval) {
+    p.x += Math.sin(player.hullYaw) * activeTank.turretZ; p.z += Math.cos(player.hullYaw) * activeTank.turretZ;
+    return p.addScaledVector(dir, activeTank.muzzleFwd);
+  }
+  return p.addScaledVector(dir, 3.5);
+}
 
 /** Update plane gun-sight aim from right stick / mouse while scoped. */
 function updatePlaneGunAim(dt) {
@@ -5578,9 +6584,9 @@ function computeImpactPoint() {
     for (const e of enemies) {
       if (!e.alive || e.team === 'blue') continue;
       const rr = e.kind === 'tank' ? 4.5 : 3.5;
-      if (pos.distanceToSquared(e.position) < rr * rr) {
+      if (e.naval ? shipHit(e, pos) : pos.distanceToSquared(e.position) < rr * rr) {
         impact = e.position.clone();
-        if (e.kind === 'tank') impact.y += 1.5;
+        if (e.kind === 'tank') impact.y += e.naval ? 3 : 1.5;
         break;
       }
     }
@@ -5761,9 +6767,7 @@ function updateWeapons(dt) {
       player.gunCooldown = S.mainGunCooldown;
       player.bombs--;
       const dir = getTurretAimDir();
-      const muzzle = player.position.clone()
-        .add(new THREE.Vector3(0, tankMuzzleY(), 0))
-        .addScaledVector(dir, 3.5);
+      const muzzle = tankMuzzlePos(dir);
       const vel = dir.clone().multiplyScalar(S.mainGunSpeed);
       fireShell(muzzle, vel, true, S.mainGunDamage, 22, 'blue');
       spawnExplosion(muzzle, 2.2, 0xffd8a0);
@@ -5771,12 +6775,15 @@ function updateWeapons(dt) {
       const forward = new THREE.Vector3(-Math.sin(player.hullYaw), 0, -Math.cos(player.hullYaw));
       player.forwardSpeed -= 0.4;
     }
-    if (input.bomb && player.mgCooldown <= 0) {
+    if (input.bomb && player.mgCooldown <= 0 && activeTank && activeTank.naval && S.torpedoDamage) {
+      player.mgCooldown = 3.2;
+      const dir = getTurretAimDir(); dir.y = 0; dir.normalize();
+      fireTorpedo(player.position.clone().addScaledVector(dir, 10), dir, S.torpedoDamage, 'blue', true);
+      toast('TORPEDO AWAY');
+    } else if (input.bomb && player.mgCooldown <= 0) {
       player.mgCooldown = S.mgCooldown;
       const dir = getTurretAimDir();
-      const muzzle = player.position.clone()
-        .add(new THREE.Vector3(0, 2.1, 0))
-        .addScaledVector(dir, 2);
+      const muzzle = (activeTank && activeTank.naval) ? tankMuzzlePos(dir).add(new THREE.Vector3(0, 1.2, 0)) : player.position.clone().add(new THREE.Vector3(0, 2.1, 0)).addScaledVector(dir, 2);
       fireBullet(muzzle, dir.clone().multiplyScalar(S.mgSpeed).add(player.velocity), true, S.mgDamage, 'blue');
     }
     return;
@@ -5847,7 +6854,7 @@ function updateBullets(dt) {
       if (!e.alive || e.team === b.team) continue;
       const d2 = b.position.distanceToSquared(e.position);
       const rr = e.kind === 'tank' ? 30 : 60;
-      if (d2 < rr) {
+      if (e.naval ? shipHit(e, b.position) : d2 < rr) {
         damageEnemy(e, b.damage, b.fromPlayer, b.position);
         spawnExplosion(b.position, 2.2, 0xffaa44);
         deactivateBullet(b); hit = true; break;
@@ -5890,22 +6897,22 @@ function updateShells(dt) {
         hit = true; break;
       }
     }
-    // Ground
-    if (!hit && s.position.y <= terrainHeightAt(s.position.x, s.position.z) + 1) {
-      explodeBomb(s.position.clone(), s.radius, s.damage, s.team);
-      hit = true;
-    }
     // Opposing units
     if (!hit) {
       for (const e of enemies) {
         if (!e.alive || e.team === s.team) continue;
         const rr = e.kind === 'tank' ? 400 : 60;
-        if (s.position.distanceToSquared(e.position) < rr) {
+        if (e.naval ? shipHit(e, s.position) : s.position.distanceToSquared(e.position) < rr) {
           damageEnemy(e, s.damage, s.fromPlayer, s.position);
           explodeBomb(s.position.clone(), s.radius * 0.6, s.damage * 0.5, s.team);
           hit = true; break;
         }
       }
+    }
+    // Ground
+    if (!hit && s.position.y <= terrainHeightAt(s.position.x, s.position.z) + 1) {
+      explodeBomb(s.position.clone(), s.radius, s.damage, s.team);
+      hit = true;
     }
     // Red team hits player
     if (!hit && s.team === 'red' && player.alive) {
@@ -5953,7 +6960,7 @@ function updateBombs(dt) {
       for (const e of enemies) {
         if (!e.alive) continue;
         const rr = e.kind === 'tank' ? 400 : 400;
-        if (b.position.distanceToSquared(e.position) < rr) {
+        if (e.naval ? shipHit(e, b.position) : b.position.distanceToSquared(e.position) < rr) {
           explodeBomb(b.position.clone(), b.radius, b.damage); exploded = true; break;
         }
       }
@@ -5966,9 +6973,13 @@ function updateBombs(dt) {
 }
 
 function explodeBomb(pos, radius, damage, team = 'blue') {
-  spawnExplosion(pos, radius * 0.55, 0xffaa22);
-  spawnExplosion(pos.clone().add(new THREE.Vector3(0, 3, 0)), radius * 0.75, 0xff6611);
-  spawnExplosion(pos.clone().add(new THREE.Vector3(0, 6, 0)), radius * 0.4, 0xffdd66);
+  if (currentMap && currentMap.sea != null && pos.y < currentMap.sea + 1.6 && waterDepthAt(pos.x, pos.z) > 1) {
+    splashFx(new THREE.Vector3(pos.x, currentMap.sea, pos.z), Math.max(4, radius * 0.7));
+  } else {
+    spawnExplosion(pos, radius * 0.55, 0xffaa22);
+    spawnExplosion(pos.clone().add(new THREE.Vector3(0, 3, 0)), radius * 0.75, 0xff6611);
+    spawnExplosion(pos.clone().add(new THREE.Vector3(0, 6, 0)), radius * 0.4, 0xffdd66);
+  }
   const r2 = radius * radius;
   for (const bd of buildings) {
     if (bd.destroyed) continue;
@@ -6001,7 +7012,7 @@ function checkUnlocks() {
       toast(`NEW AIRCRAFT UNLOCKED: ${p.name}!`, 'unlock');
   for (const t of TANKS)
     if (t.unlockKills > 0 && prog.totalKills === t.unlockKills)
-      toast(`NEW TANK UNLOCKED: ${t.name}!`, 'unlock');
+      toast(`NEW ${t.naval ? 'SHIP' : 'TANK'} UNLOCKED: ${t.name}!`, 'unlock');
   for (const s of SKINS)
     if (s.unlockKills > 0 && prog.totalKills === s.unlockKills)
       toast(`NEW PAINT UNLOCKED: ${s.name}!`, 'unlock');
@@ -6059,7 +7070,7 @@ function damageEnemy(e, amount, fromPlayer = true, fromPos = null) {
   if (fromPlayer && e.team === 'blue') return;
 
   const fromDir = fromPos ? e.position.clone().sub(fromPos).normalize() : null;
-  const result = applyArmor(e, amount, fromDir);
+  const result = e.naval ? { dmg: amount, ricochet: false, crit: false } : applyArmor(e, amount, fromDir);
   e.health -= result.dmg;
 
   if (fromPlayer) {
@@ -6072,6 +7083,7 @@ function damageEnemy(e, amount, fromPlayer = true, fromPos = null) {
     e.alive = false; e.mesh.visible = false;
     spawnExplosion(e.position, 22, 0xff8822);
     spawnExplosion(e.position.clone().add(new THREE.Vector3(0, 3, 0)), 30, 0xff4411);
+    if (e.naval) { spawnExplosion(e.position.clone().add(new THREE.Vector3(0, 9, 0)), 40, 0xff6622); splashFx(e.position, 26); emitSmoke(e.position.clone().add(new THREE.Vector3(0, 6, 0)), 2.2, true); }
     // Ticket loss for the dead unit's team
     if (e.team === 'red') {
       MATCH.ticketsRed = Math.max(0, MATCH.ticketsRed - MATCH.ticketLossOnDeath);
@@ -6145,20 +7157,35 @@ function showHitmarker(crit = false) {
 const _m4 = new THREE.Matrix4();
 const _tmpVec = new THREE.Vector3();
 
+/* ============================================================
+   AI — shared helpers
+   ============================================================ */
+/** Terrain-aware line of sight with a little arc allowance for shells. */
+function losClear(ax, ay, az, bx, by, bz) {
+  const d = Math.hypot(bx - ax, bz - az), N = 10;
+  for (let i = 1; i < N; i++) {
+    const t = i / N, x = ax + (bx - ax) * t, z = az + (bz - az) * t;
+    const y = ay + (by - ay) * t + Math.sin(Math.PI * t) * d * 0.035;
+    if (terrainHeightAt(x, z) > y - 0.4) return false;
+  }
+  return true;
+}
+const PLAYER_REF = {};
 function findAITargetBase(e) {
-  // Prefer opposite-team units; red also targets the player
-  let best = null, bestD = 1e12;
   const foeTeam = e.team === 'blue' ? 'red' : 'blue';
-  if (e.team === 'red' && player.alive) {
-    const d = e.position.distanceToSquared(player.position);
-    if (d < bestD) { bestD = d; best = { pos: player.position, kind: player.kind, isPlayer: true }; }
-  }
-  for (const o of enemies) {
-    if (!o.alive || o.team !== foeTeam) continue;
-    const d = e.position.distanceToSquared(o.position);
-    if (d < bestD) { bestD = d; best = { pos: o.position, kind: o.kind, isPlayer: false }; }
-  }
-  // If no combat target, head toward a neutral/enemy capture point
+  let best = null, bestS = 1e12, bestRef = null;
+  const consider = (pos, vel, kind, isPlayer, o) => {
+    let s = e.position.distanceToSquared(pos);
+    if (o) { const hp = 0.62 + 0.38 * Math.max(0, o.health) / Math.max(1, o.maxHealth); s *= hp * hp; }        // finish the wounded
+    if (e.kind === 'plane') { if (kind === 'plane') s *= 0.6; }                                                  // fighters hunt fighters first
+    else if (kind === 'plane' && s > 380 * 380) s *= 3;                                                           // tanks ignore far-off aircraft
+    if (isPlayer) s *= 0.85;
+    if (e.tref === (o || PLAYER_REF)) s *= 0.55;                                                                  // stick to the current target
+    if (s < bestS) { bestS = s; bestRef = o || PLAYER_REF; best = { pos, vel, kind, isPlayer, naval: !!(o ? o.naval : (activeTank && activeTank.naval && player.kind === 'tank')) }; }
+  };
+  if (e.team === 'red' && player.alive) consider(player.position, player.velocity, player.kind, true, null);
+  for (const o of enemies) { if (o.alive && o.team === foeTeam) consider(o.position, o.velocity, o.kind, false, o); }
+  e.tref = bestRef;
   if (!best) {
     const targets = captPoints.filter(c => c.owner !== e.team);
     if (targets.length) {
@@ -6169,112 +7196,205 @@ function findAITargetBase(e) {
   }
   return best;
 }
+function nearestFriendlyCap(e) {
+  let c = null, cd = 1e12;
+  for (const q of captPoints) { if (q.owner !== e.team) continue; const d = (q.x - e.position.x) ** 2 + (q.z - e.position.z) ** 2; if (d < cd) { cd = d; c = q; } }
+  return c;
+}
+/** Barrel elevation needed to land a shell on a point `hd` away and `dy` higher. */
+function ballisticPitch(hd, dy, v) {
+  const g = PHYS.gravity * 3.0;
+  return 0.5 * Math.asin(Math.min(1, hd * g / (v * v))) + Math.atan2(dy, Math.max(1, hd));
+}
 
+/* ============================================================
+   AI — aircraft
+   ============================================================ */
 function updateEnemyPlane(e, dt) {
   const target = findAITarget(e);
-  const aimPos = target ? target.pos : player.position;
+  const S = e.stats, aimBase = target ? target.pos : player.position;
+  const combat = !!target && target.kind !== 'cap';
+  const air = combat && target.kind === 'plane';
+  e.mode = e.mode || 'attack'; e.modeT = (e.modeT || 0) - dt;
+
+  // lead the target: where it will be when a round arrives
+  const aimPos = _tmpVec2.copy(aimBase);
+  if (combat && target.vel) aimPos.addScaledVector(target.vel, Math.min(1.3, aimBase.distanceTo(e.position) / 820));
   const toTarget = _tmpVec.copy(aimPos).sub(e.position);
   const dist = toTarget.length();
-  const desired = new THREE.Vector3();
 
-  if (!target || dist > 900) desired.copy(toTarget).normalize();
-  else if (dist < 220) {
-    desired.copy(toTarget).normalize().multiplyScalar(-0.4);
-    const side = new THREE.Vector3().crossVectors(toTarget, new THREE.Vector3(0, 1, 0)).normalize();
-    desired.addScaledVector(side, e.circleDir * 1.2); desired.normalize();
-  } else {
-    const side = new THREE.Vector3().crossVectors(toTarget, new THREE.Vector3(0, 1, 0)).normalize();
-    desired.addScaledVector(side, e.circleDir * 0.9);
-    desired.addScaledVector(toTarget.clone().normalize(), 0.25);
-    if (target && target.kind === 'tank') desired.y -= 0.25;
-    else desired.y += 0.05;
-    desired.normalize();
+  // react to damage and to being hunted
+  const hit = e.lastHp != null && e.health < e.lastHp - 1; e.lastHp = e.health;
+  e.thrT = (e.thrT || 0) - dt;
+  let threat = null;
+  if (e.thrT <= 0) {
+    e.thrT = 0.35;
+    const foeTeam = e.team === 'blue' ? 'red' : 'blue';
+    const chk = (p, v) => { const d = e.position.distanceTo(p); if (d > 600 || !v || v.lengthSq() < 100) return; const dir = _tmpVec3.copy(e.position).sub(p).normalize(); if (dir.dot(_tmpVec4.copy(v).normalize()) > 0.93) threat = p; };
+    if (e.team === 'red' && player.alive && player.kind === 'plane') chk(player.position, player.velocity);
+    for (const o of enemies) if (o.alive && o.kind === 'plane' && o.team === foeTeam) chk(o.position, o.velocity);
+    if (threat) e.threatPos = threat.clone();
   }
+  if ((hit || threat) && e.mode !== 'evade' && Math.random() < (hit ? 0.8 : 0.5)) {
+    e.mode = 'evade'; e.modeT = 1.2 + Math.random() * 1.2; e.evadeSide = Math.random() < 0.5 ? -1 : 1; e.evadeUp = (Math.random() - 0.4) * 1.1;
+  }
+  if (e.modeT <= 0 && e.mode !== 'attack') e.mode = 'attack';
 
+  const desired = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
+  const side = new THREE.Vector3().crossVectors(toTarget, up).normalize();
   const gyE = terrainHeightAt(e.position.x, e.position.z);
+  if (e.mode === 'evade') {
+    const fwdN = _tmpVec3.copy(e.velocity).normalize();
+    desired.copy(new THREE.Vector3().crossVectors(fwdN, up).normalize()).multiplyScalar(e.evadeSide * 1.2);
+    desired.y += e.evadeUp; desired.addScaledVector(fwdN, 0.35);
+    if (e.threatPos) { const away = new THREE.Vector3().copy(e.position).sub(e.threatPos); away.y = 0; desired.addScaledVector(away.normalize(), 0.3); }
+    desired.normalize();
+  } else if (e.mode === 'extend') {
+    desired.set(-toTarget.x, 0, -toTarget.z).normalize(); desired.y = 0.4; desired.addScaledVector(side, e.circleDir * 0.25); desired.normalize();
+  } else if (!combat || dist > 900) {
+    desired.copy(toTarget).normalize();
+    if (!combat && dist < 320) { desired.copy(side).multiplyScalar(e.circleDir).addScaledVector(toTarget.clone().normalize(), 0.2).normalize(); }   // loiter over the objective
+  } else if (air) {
+    if (dist < 160) {                                         // too close: scissors out
+      desired.copy(toTarget).normalize().multiplyScalar(-0.3); desired.addScaledVector(side, e.circleDir * 1.2); desired.y += 0.25; desired.normalize();
+    } else {                                                  // lag/lead pursuit with a lift so turns stay energetic
+      desired.copy(toTarget).normalize(); desired.addScaledVector(side, e.circleDir * Math.max(0, 0.5 - dist / 1500)); desired.normalize();
+    }
+  } else {                                                    // ground attack: high approach, dive, pull off and extend
+    const tgy = terrainHeightAt(aimBase.x, aimBase.z);
+    if (dist > 700) { desired.copy(toTarget).normalize(); desired.y = Math.max(desired.y, (tgy + 260 - e.position.y) * 0.004); desired.normalize(); }
+    else { desired.copy(toTarget).normalize(); desired.y = Math.max(desired.y, -0.55); desired.normalize(); }
+    if (dist < 150 || (dist < 420 && e.position.y < tgy + 55)) { e.mode = 'extend'; e.modeT = 3 + Math.random() * 2; e.circleDir *= -1; }
+  }
+  // keep clear of friendly aircraft
+  for (const o of enemies) {
+    if (o === e || !o.alive || o.kind !== 'plane' || o.team !== e.team) continue;
+    const dx = e.position.x - o.position.x, dy = e.position.y - o.position.y, dz = e.position.z - o.position.z, d2 = dx * dx + dy * dy + dz * dz;
+    if (d2 < 8100 && d2 > 1) { const d = Math.sqrt(d2), w = 0.9 * (1 - d / 90); desired.x += dx / d * w; desired.y += dy / d * w; desired.z += dz / d * w; }
+  }
+  desired.normalize();
+
+  // terrain avoidance
   const gyA = Math.max(gyE, terrainHeightAt(e.position.x + e.velocity.x * 2.2, e.position.z + e.velocity.z * 2.2), terrainHeightAt(e.position.x + e.velocity.x * 1.1, e.position.z + e.velocity.z * 1.1));
-  if (e.position.y < gyA + 45 + Math.max(0, gyA - gyE) * 1.5) desired.y = Math.max(desired.y, 0.55);
+  if (e.position.y < gyA + 45 + Math.max(0, gyA - gyE) * 1.5) { desired.y = Math.max(desired.y, 0.55); desired.normalize(); }
   if (e.position.y < gyE + 12) e.position.y = gyE + 12;
   if (e.position.y > 1200) desired.y = Math.min(desired.y, -0.3);
 
-  const spd = e.stats.speed;
-  const targetVel = desired.multiplyScalar(spd);
-  e.velocity.lerp(targetVel, 1 - Math.pow(0.06, dt));
+  const spd = S.speed * (e.mode === 'evade' ? 1.08 : 1);
+  e.velocity.lerp(desired.clone().multiplyScalar(spd), 1 - Math.pow(0.06, dt));
   e.position.addScaledVector(e.velocity, dt);
 
   const fwd = e.velocity.clone().normalize();
   const desiredTurn = new THREE.Vector3().crossVectors(fwd, desired).y;
-  const bankAngle = THREE.MathUtils.clamp(-desiredTurn * 2.2, -1.0, 1.0);
-  const up = new THREE.Vector3(0, 1, 0);
+  const bankAngle = THREE.MathUtils.clamp(-desiredTurn * 2.2, -1.0, 1.0) * (e.mode === 'evade' ? 1.4 : 1);
   const right = new THREE.Vector3().crossVectors(fwd, up).normalize();
   const trueUp = new THREE.Vector3().crossVectors(right, fwd).normalize();
   trueUp.applyAxisAngle(fwd, bankAngle);
   _m4.lookAt(new THREE.Vector3(), fwd.clone().negate(), trueUp);
-  const targetQ = new THREE.Quaternion().setFromRotationMatrix(_m4);
-  e.quaternion.slerp(targetQ, 1 - Math.pow(0.04, dt));
+  e.quaternion.slerp(new THREE.Quaternion().setFromRotationMatrix(_m4), 1 - Math.pow(0.04, dt));
   e.mesh.position.copy(e.position);
   e.mesh.quaternion.copy(e.quaternion);
 
   e.fireCd -= dt;
-  if (target && target.kind !== 'cap' && dist < 750 && dist > 60 && e.fireCd <= 0) {
-    const aimDir = toTarget.clone().normalize();
+  if (combat && e.mode !== 'evade' && dist < 700 && dist > 50 && e.fireCd <= 0) {
     const nose = new THREE.Vector3(0, 0, -1).applyQuaternion(e.quaternion);
-    if (nose.dot(aimDir) > 0.96) {
-      e.fireCd = e.stats.fireCd + Math.random() * 0.08;
+    if (nose.dot(toTarget.clone().normalize()) > (air ? 0.97 : 0.95)) {
+      e.fireCd = S.fireCd + Math.random() * 0.08;
       const muzzle = e.position.clone().addScaledVector(nose, 8);
-      const jitter = new THREE.Vector3(
-        (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02, (Math.random() - 0.5) * 0.02);
-      const vel = e.velocity.clone().addScaledVector(nose.add(jitter).normalize(), 800);
-      fireBullet(muzzle, vel, false, e.stats.damage, e.team);
+      const jitter = new THREE.Vector3((Math.random() - 0.5) * 0.016, (Math.random() - 0.5) * 0.016, (Math.random() - 0.5) * 0.016);
+      fireBullet(muzzle, e.velocity.clone().addScaledVector(nose.add(jitter).normalize(), 800), false, S.damage, e.team);
     }
   }
 }
+const _tmpVec2 = new THREE.Vector3(), _tmpVec3 = new THREE.Vector3(), _tmpVec4 = new THREE.Vector3();
 
+/* ============================================================
+   AI — tanks: advance → stop-and-shoot → scoot, flank without line of sight,
+   lead the shot, fall back to a friendly point when badly hurt
+   ============================================================ */
 function updateEnemyTank(e, dt) {
-  const target = findAITarget(e);
-  const aimPos = target ? target.pos : player.position;
-  const toTarget = _tmpVec.copy(aimPos).sub(e.position);
-  toTarget.y = 0;
-  const dist = toTarget.length();
+  if (e.naval) return updateEnemyShip(e, dt);
+  const target = findAITarget(e), S = e.stats;
+  const aimBase = target ? target.pos : player.position;
+  const combat = !!target && target.kind !== 'cap';
+  const toBase = _tmpVec.copy(aimBase).sub(e.position); toBase.y = 0;
+  const dist = toBase.length();
+  const capGoal = target && target.kind === 'cap';
+  if (e.engage == null) { e.engage = 330 + Math.random() * 150; e.tmode = 'advance'; e.tmT = 0; }
+  e.tmT -= dt; e.losT = (e.losT || 0) - dt;
 
-  let desiredVel;
-  if (dist > 180 || (target && target.kind === 'cap' && dist > CAP_RADIUS * 0.7)) {
-    desiredVel = toTarget.clone().normalize().multiplyScalar(e.stats.speed);
-  } else if (dist < 90 && target && target.kind !== 'cap') {
-    desiredVel = toTarget.clone().normalize().multiplyScalar(-e.stats.speed * 0.4);
-  } else if (target && target.kind === 'cap' && dist < CAP_RADIUS * 0.7) {
-    desiredVel = new THREE.Vector3(0, 0, 0); // sit on the point
-  } else {
-    const side = new THREE.Vector3().crossVectors(toTarget, new THREE.Vector3(0, 1, 0)).normalize();
-    desiredVel = side.multiplyScalar(e.stats.speed * 0.5 * e.circleDir);
+  if (combat && e.losT <= 0) {
+    e.losT = 0.3 + Math.random() * 0.15;
+    e.los = losClear(e.position.x, e.position.y + 2.2, e.position.z, aimBase.x, aimBase.y + (target.kind === 'plane' ? 0 : 1.6), aimBase.z);
   }
+  if (!combat) e.los = false;
+
+  const hurt = e.health < e.maxHealth * 0.3, home = hurt ? nearestFriendlyCap(e) : null;
+  const dirTo = toBase.clone().normalize();
+  const sideV = new THREE.Vector3().crossVectors(dirTo, new THREE.Vector3(0, 1, 0)).normalize();
+  let desiredVel = new THREE.Vector3();
+  let atHome = false;
+
+  if (hurt && home && combat && dist < 700) {                 // limp home to a friendly point and repair
+    const hx = home.x - e.position.x, hz = home.z - e.position.z, hl = Math.hypot(hx, hz);
+    if (hl > CAP_RADIUS * 0.6) desiredVel.set(hx / hl, 0, hz / hl).multiplyScalar(S.speed); else { atHome = true; e.health = Math.min(e.maxHealth, e.health + e.maxHealth * 0.03 * dt); }
+    e.tmode = 'retreat';
+  } else if (capGoal) {
+    if (dist > CAP_RADIUS * 0.7) desiredVel.copy(dirTo).multiplyScalar(S.speed);                       // sit on the point
+    e.tmode = 'advance';
+  } else if (combat) {
+    if (e.tmode === 'retreat') e.tmode = 'advance';
+    if (dist > e.engage * 1.1 || !e.los) {                      // close the gap, drifting sideways to find an angle when blocked
+      e.tmode = 'advance';
+      desiredVel.copy(dirTo).multiplyScalar(S.speed);
+      if (!e.los && dist < e.engage * 1.6) desiredVel.addScaledVector(sideV, e.circleDir * S.speed * 0.8).normalize().multiplyScalar(S.speed);
+    } else if (dist < 100) {
+      desiredVel.copy(dirTo).multiplyScalar(-S.speed * 0.6);                                             // too close: back off while firing
+    } else if (e.tmode === 'scoot') {
+      desiredVel.copy(sideV).multiplyScalar(S.speed * 0.8 * e.circleDir);
+      if (e.tmT <= 0) { e.tmode = 'fire'; e.tmT = 1.6 + Math.random() * 1.6; }
+    } else {                                                    // stop to shoot (steadier aim), then relocate
+      if (e.tmode !== 'fire') { e.tmode = 'fire'; e.tmT = 1.6 + Math.random() * 1.6; }
+      if (e.tmT <= 0) { e.tmode = 'scoot'; e.tmT = 1.3 + Math.random() * 1.2; e.circleDir *= Math.random() < 0.7 ? -1 : 1; }
+    }
+  } else { e.tmode = 'advance'; }
+
+  // unstick: if the route is blocked by a slope or deep water, take a detour for a moment
+  e.stuckT = (e.stuckT || 0) - dt; e.detourT = (e.detourT || 0) - dt;
+  if (e.stuckT <= 0) {
+    e.stuckT = 1.2;
+    const moved = e.stuckPos ? Math.hypot(e.position.x - e.stuckPos.x, e.position.z - e.stuckPos.z) : 99;
+    if (desiredVel.lengthSq() > 4 && moved < 2.5) { e.detourT = 2.2; e.detourDir = Math.random() < 0.5 ? -1 : 1; }
+    e.stuckPos = { x: e.position.x, z: e.position.z };
+  }
+  if (e.detourT > 0 && desiredVel.lengthSq() > 4) desiredVel.applyAxisAngle(new THREE.Vector3(0, 1, 0), e.detourDir * 1.2);
+
   e.velocity.lerp(desiredVel, 1 - Math.pow(0.3, dt));
   const _px = e.position.x, _pz = e.position.z;
   e.position.addScaledVector(e.velocity, dt);
-  if (terrainSlopeAt(e.position.x, e.position.z) > 0.62) { e.position.x = _px; e.position.z = _pz; e.velocity.multiplyScalar(0.3); }
+  if (terrainSlopeAt(e.position.x, e.position.z) > 0.62 || waterDepthAt(e.position.x, e.position.z) > 1.8) { e.position.x = _px; e.position.z = _pz; e.velocity.multiplyScalar(0.3); }
   e.position.y = terrainHeightAt(e.position.x, e.position.z);
 
   const vLen = e.velocity.length();
-  const faceDir = vLen > 0.5 ? e.velocity.clone().normalize() : toTarget.clone().normalize();
-  const desiredHullYaw = Math.atan2(-faceDir.x, -faceDir.z);
-  let dYaw = desiredHullYaw - e.hullYaw;
+  const faceDir = vLen > 1.2 ? e.velocity.clone().normalize() : dirTo;
+  let dYaw = Math.atan2(-faceDir.x, -faceDir.z) - e.hullYaw;
   while (dYaw > Math.PI) dYaw -= Math.PI * 2;
   while (dYaw < -Math.PI) dYaw += Math.PI * 2;
   e.hullYaw += dYaw * Math.min(1, dt * 1.5);
   e.quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), e.hullYaw);
 
-  const worldTurretYaw = Math.atan2(-toTarget.x, -toTarget.z);
-  let desiredTurretYaw = worldTurretYaw - e.hullYaw;
+  // gunnery: lead moving targets, compensate for shell drop
+  const lead = combat && target.vel ? Math.min(2.2, dist / S.shellSpeed) : 0;
+  const px = aimBase.x + (lead ? target.vel.x * lead : 0), pz = aimBase.z + (lead ? target.vel.z * lead : 0);
+  const tx = px - e.position.x, tz = pz - e.position.z, horiz = Math.hypot(tx, tz);
+  let desiredTurretYaw = Math.atan2(-tx, -tz) - e.hullYaw;
   while (desiredTurretYaw > Math.PI) desiredTurretYaw -= Math.PI * 2;
   while (desiredTurretYaw < -Math.PI) desiredTurretYaw += Math.PI * 2;
-  let dTur = desiredTurretYaw - e.turretYaw;
-  e.turretYaw += dTur * Math.min(1, dt * 2.0);
-
-  const horiz = Math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z);
-  const elevTarget = (target && target.kind === 'plane') ? aimPos.y : 1.5;
-  const desiredPitch = Math.atan2(elevTarget - 2.1, Math.max(1, horiz));
-  e.turretPitch += (desiredPitch - e.turretPitch) * Math.min(1, dt * 2.0);
-  e.turretPitch = THREE.MathUtils.clamp(e.turretPitch, -0.15, 0.35);
+  const dTur = desiredTurretYaw - e.turretYaw;
+  e.turretYaw += dTur * Math.min(1, dt * 2.2);
+  const aimY = target && target.kind === 'plane' ? aimBase.y + (lead && target.vel ? target.vel.y * lead : 0) : aimBase.y + 1.4;
+  e.turretPitch += (ballisticPitch(horiz, aimY - (e.position.y + 2.1), S.shellSpeed) - e.turretPitch) * Math.min(1, dt * 2.2);
+  e.turretPitch = THREE.MathUtils.clamp(e.turretPitch, -0.15, 0.5);
 
   e.mesh.position.copy(e.position);
   terrainTilt(e.position.x, e.position.z, e.hullYaw, e.mesh.quaternion);
@@ -6282,22 +7402,21 @@ function updateEnemyTank(e, dt) {
   if (e.mesh.userData.barrel) e.mesh.userData.barrel.rotation.x = e.turretPitch;
 
   e.fireCd -= dt;
-  if (target && target.kind !== 'cap' && dist < 500 && e.fireCd <= 0) {
-    if (Math.abs(dTur) < 0.15) {
-      e.fireCd = e.stats.fireCd + Math.random() * 0.5;
-      const dir = new THREE.Vector3(0, 0, -1);
-      dir.applyAxisAngle(new THREE.Vector3(1, 0, 0), e.turretPitch);
-      dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), e.hullYaw + e.turretYaw);
-      const muzzle = e.position.clone().add(new THREE.Vector3(0, 2.1, 0)).addScaledVector(dir, 3);
-      dir.x += (Math.random() - 0.5) * 0.02;
-      dir.z += (Math.random() - 0.5) * 0.02;
-      dir.normalize();
-      const vel = dir.clone().multiplyScalar(e.stats.shellSpeed);
-      fireShell(muzzle, vel, false, e.stats.damage, 18, e.team);
-      spawnExplosion(muzzle, 2.2, 0xffd8a0);
-    }
+  if (combat && e.los && dist < e.engage * 1.5 && e.fireCd <= 0 && Math.abs(dTur) < 0.07) {
+    e.fireCd = S.fireCd + Math.random() * 0.4;
+    const dir = new THREE.Vector3(0, 0, -1);
+    dir.applyAxisAngle(new THREE.Vector3(1, 0, 0), e.turretPitch);
+    dir.applyAxisAngle(new THREE.Vector3(0, 1, 0), e.hullYaw + e.turretYaw);
+    const muzzle = e.position.clone().add(new THREE.Vector3(0, 2.1, 0)).addScaledVector(dir, 3);
+    const spread = vLen > 2 ? 0.024 : 0.011;                                    // steadier when stopped
+    dir.x += (Math.random() - 0.5) * spread; dir.z += (Math.random() - 0.5) * spread; dir.y += (Math.random() - 0.5) * spread * 0.5;
+    dir.normalize();
+    fireShell(muzzle, dir.clone().multiplyScalar(S.shellSpeed), false, S.damage, 18, e.team);
+    spawnExplosion(muzzle, 2.2, 0xffd8a0);
   }
 }
+
+
 
 function updateEnemies(dt) {
   for (const e of enemies) {
@@ -6423,14 +7542,15 @@ function updateCameraTank(dt) {
     _fpInit = false;
     // Third person — behind and above, following turret yaw AND pitch for aim awareness
     const turretQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), turretWorldYaw);
-    const offset = new THREE.Vector3(0, 6, 14).applyQuaternion(turretQ);
+    const cs = (activeTank && activeTank.camScale) || 1;
+    const offset = new THREE.Vector3(0, 6 * cs, 14 * cs).applyQuaternion(turretQ);
     _camTargetPos.copy(player.position).add(offset);
     camera.position.lerp(_camTargetPos, 1 - Math.pow(0.0008, dt));
 
     // Look toward where the gun is aiming (includes elevation)
     _camLookAt.copy(player.position)
-      .add(new THREE.Vector3(0, 1.8, 0))
-      .addScaledVector(lookDir, 50);
+      .add(new THREE.Vector3(0, 1.8 * cs, 0))
+      .addScaledVector(lookDir, 50 * cs);
     camera.up.set(0, 1, 0);
     camera.lookAt(_camLookAt);
   }
@@ -6746,7 +7866,7 @@ function clientJoinRoom(code) {
         t: 'hello',
         name: NET.localName,
         vehicleType: prog.currentVehicleType,
-        vehicleId: prog.currentVehicleType === 'tank' ? prog.currentTankId : prog.currentPlaneId,
+        vehicleId: prog.currentVehicleType === 'tank' ? (getTank(prog.currentTankId).naval ? 'sherman' : prog.currentTankId) : prog.currentPlaneId,
         skin: prog.currentSkin
       });
     });
@@ -7099,9 +8219,11 @@ function resetPlayer() {
     sz = c.z + (Math.random() - 0.5) * 80;
   }
   if (player.kind === 'tank') {
-    player.position.set(sx, 0, sz);
+    const nv = !!(activeTank && activeTank.naval && fleetZone('blue'));
+    if (nv) { const p = shipSpawnPos('blue'); sx = p.x; sz = p.z; clearTorpedoes(); }
+    player.position.set(sx, nv ? seaLevel() : 0, sz);
     player.velocity.set(0, 0, 0);
-    player.hullYaw = 0; player.forwardSpeed = 0;
+    player.hullYaw = nv ? Math.atan2(sx, sz) : 0; player.forwardSpeed = 0;
     player.turretYaw = 0; player.turretPitch = 0;
     player.quaternion.identity();
     player.throttle = 0;
@@ -7138,7 +8260,7 @@ function resetPlayer() {
 
 let pendingMapId = null;
 function fullReset() {
-  { const mm = pendingMapId ? getMap(pendingMapId) : chooseMap(); pendingMapId = null; applyMap(mm); toast('MAP · ' + mm.name.toUpperCase() + ' · ' + mm.tag); }
+  { const mm = pendingMapId ? getMap(pendingMapId) : chooseMap(); pendingMapId = null; applyMap(mm); toast('MAP · ' + mm.name.toUpperCase() + ' · ' + mm.tag + (playerIsNaval() && mapChoice !== 'random' && getMap(mapChoice) !== mm ? ' · NAVAL MATCH' : '')); }
   MATCH.ticketsBlue = MATCH.maxTickets;
   MATCH.ticketsRed = MATCH.maxTickets;
   MATCH.active = true;
@@ -7258,6 +8380,7 @@ function animate() {
     if (STRAT.open) { if (MATCH.ended || !player.alive) stratClose(); else { drawCommandMap(); stratRefreshUI(); } }
     updateBullets(dt);
     updateShells(dt);
+    updateTorpedoes(dt);
     updateBombs(dt);
     updateMissiles(dt);
     updateExplosions(dt);
@@ -7298,7 +8421,7 @@ window.addEventListener('gamepaddisconnected', () => toast('Controller disconnec
 
 document.getElementById('respawn').onclick = () => {
   if (MATCH.ended) return;
-  if (vehicleChangedInHangar) { vehicleChangedInHangar = false; applyCurrentVehicle(); }
+  if (vehicleChangedInHangar) { vehicleChangedInHangar = false; applyCurrentVehicle(); if (playerIsNaval() && !(currentMap && currentMap.fleet)) { fullReset(); return; } }
   resetPlayer();
   if (enemies.filter(e => e.alive && e.team === 'red').length < 2) spawnEnemy('red');
   if (enemies.filter(e => e.alive && e.team === 'blue').length < 1) spawnEnemy('blue');
@@ -7317,7 +8440,7 @@ function renderMapPick() {
   const m = mapChoice === 'random' ? null : getMap(mapChoice);
   document.getElementById('mapName').textContent = m ? m.name.toUpperCase() : 'RANDOM THEATRE';
   document.getElementById('mapTag').textContent = m ? m.tag.toUpperCase() : 'A DIFFERENT MAP EVERY MATCH';
-  document.getElementById('mapDesc').textContent = m ? m.desc : 'Rhine farmland, Sahara dunes, Arctic tundra, Ardennes forest, Alpine pass or ruined industrial city.';
+  document.getElementById('mapDesc').textContent = m ? m.desc : 'Rhine farmland, Sahara dunes, Arctic tundra, Ardennes forest, Alpine pass, a ruined industrial city, coral isles or a dawn harbour.';
 }
 function stepMap(d) {
   let i = MAP_IDS.indexOf(mapChoice); if (i < 0) i = 0;
@@ -7356,6 +8479,32 @@ updateTicketUI();
 animate();
 // Load PNG textures from /textures (async). Replace files there to retheme the game.
 loadAllTextures().then(() => toast('Textures loaded')).catch(() => {});
+</script>
+<div id="verTag" style="position:fixed;right:12px;bottom:8px;z-index:300;font:600 11px/1 'Bahnschrift','Segoe UI',sans-serif;letter-spacing:.14em;color:#8fa0b8;opacity:.75;pointer-events:none"></div>
+<div id="updBanner" style="display:none;position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:400;padding:10px 18px 10px 20px;background:linear-gradient(180deg,#1a2a46,#0d1830);border:1px solid #c8283c;box-shadow:0 0 0 1px #000,0 6px 24px rgba(0,0,0,.6);color:#e8eef8;font:600 13px/1.3 'Bahnschrift','Segoe UI',sans-serif;letter-spacing:.08em;cursor:pointer;text-align:center">
+  <b style="color:#ff6b78">UPDATE AVAILABLE</b> <span id="updVer"></span><br><span style="font-weight:400;opacity:.85">Close this window, then run start again to get it. (click to dismiss)</span></div>
+<script>
+// Version label + "new update" notice. The launcher (updater.py) does the actual downloading at startup.
+(async () => {
+  try {
+    const loc = await (await fetch('manifest.json', { cache: 'no-store' })).json();
+    document.getElementById('verTag').textContent = 'v' + loc.version;
+    const cfg = await (await fetch('update.json', { cache: 'no-store' })).json();
+    const url = (cfg.manifestUrl || '').trim();
+    if (!url || /OWNER/.test(url)) return;
+    const check = async () => {
+      try {
+        const rem = await (await fetch(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' })).json();
+        if (rem && rem.version && rem.version !== loc.version) {
+          document.getElementById('updVer').textContent = 'v' + rem.version;
+          document.getElementById('updBanner').style.display = 'block';
+        }
+      } catch (e) {}
+    };
+    document.getElementById('updBanner').onclick = () => { document.getElementById('updBanner').style.display = 'none'; };
+    check(); setInterval(check, 10 * 60 * 1000);
+  } catch (e) {}
+})();
 </script>
 </body>
 </html>

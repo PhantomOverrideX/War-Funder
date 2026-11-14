@@ -1,9 +1,9 @@
 # If you see "not digitally signed", run instead:
 #   powershell -ExecutionPolicy Bypass -File .\start.ps1
-# Or double-click start.bat (recommended on locked-down PCs).
+# Or run:  python start.py
 #
 # BIOBENCH local launcher
-# Starts python -m http.server and opens the game in your default browser.
+# Checks for updates (updater.py), starts python -m http.server and opens the game in your default browser.
 
 $ErrorActionPreference = "Stop"
 $Port = 8000
@@ -25,6 +25,14 @@ foreach ($cmd in @("py", "python3", "python")) {
 if (-not $python) {
     Write-Host "Python was not found. Install Python 3 and ensure it is on PATH." -ForegroundColor Red
     exit 1
+}
+
+# Auto-update (never blocks launch: offline or failed updates just start the installed version)
+if (Test-Path (Join-Path $Root "updater.py")) {
+    try {
+        if ($python -eq "py") { & py -3 updater.py } else { & $python updater.py }
+    } catch { Write-Host "[update] skipped ($($_.Exception.Message))" -ForegroundColor Yellow }
+    Write-Host ""
 }
 
 $url = "http://localhost:$Port/"
